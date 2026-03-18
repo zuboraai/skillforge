@@ -180,8 +180,6 @@
     /* === COMMUNITY === */
     .community-section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
     .community-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
-    .community-feed-area { }
-    .community-sidebar { }
 
     /* Feed */
     .post-composer { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem; }
@@ -278,7 +276,6 @@
 
     /* === PROFILE MODAL === */
     .profile-modal { max-width: 540px; }
-    .profile-header-modal { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
     .emoji-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem; margin-bottom: 1rem; }
     .emoji-opt { font-size: 1.4rem; cursor: pointer; padding: 0.4rem; border-radius: 8px; text-align: center; border: 2px solid transparent; transition: all 0.2s; }
     .emoji-opt:hover, .emoji-opt.selected { border-color: var(--accent); background: rgba(124,58,237,0.15); }
@@ -313,7 +310,7 @@
 </head>
 <body>
 
-<!-- Setup Banner (shown when Supabase not configured) -->
+<!-- Setup Banner -->
 <div class="setup-banner" id="setup-banner">
   ⚠️ <strong>開発者向け:</strong> Supabaseを接続するとコミュニティ機能が有効になります。
   <a onclick="document.getElementById('setup-modal').classList.add('open')">セットアップ方法を見る →</a>
@@ -351,7 +348,6 @@
 <div class="section" id="market">
   <div class="section-title">🛒 スキルマーケット</div>
   <div class="section-sub">AIエージェントに装備させるスキルを探す。カテゴリで絞り込めます。</div>
-
   <div class="tabs">
     <button class="tab active" data-filter="all">🔥 すべて</button>
     <button class="tab" data-filter="automation">🤖 自動化</button>
@@ -359,73 +355,49 @@
     <button class="tab" data-filter="business">📊 ビジネス</button>
     <button class="tab" data-filter="content">🎥 コンテンツ</button>
   </div>
-
   <div class="grid" id="skill-grid">
     <div class="card" data-category="automation" data-modal="skill1">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(124,58,237,0.2)">🚀</div>
-        <span class="rarity rarity-epic">Epic</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(124,58,237,0.2)">🚀</div><span class="rarity rarity-epic">Epic</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">X自動投稿スキル</div>
       <div class="card-desc">AIがAIニュースを自動生成してXに1日3回投稿。PCがオフでもGitHub Actionsで24時間稼働。</div>
       <div class="card-tags"><span class="tag">自動化</span><span class="tag">Claude API</span><span class="tag">収益化</span></div>
       <div class="card-footer"><div class="price">¥3,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-
     <div class="card" data-category="business" data-modal="skill2">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(245,158,11,0.2)">📝</div>
-        <span class="rarity rarity-legendary">Legendary</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(245,158,11,0.2)">📝</div><span class="rarity rarity-legendary">Legendary</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">法律文書レビュースキル</div>
       <div class="card-desc">契約書・利用規約・NDAをClaudeが自動レビュー。リスク箇所をハイライトしてわかりやすく解説。</div>
       <div class="card-tags"><span class="tag">法律</span><span class="tag">ビジネス</span><span class="tag">Word対応</span></div>
       <div class="card-footer"><div class="price">¥8,800</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-
     <div class="card" data-category="business" data-modal="skill3">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(6,182,212,0.2)">📊</div>
-        <span class="rarity rarity-rare">Rare</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(6,182,212,0.2)">📊</div><span class="rarity rarity-rare">Rare</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">Excel自動集計スキル</div>
       <div class="card-desc">散らかったExcelデータをAIが整理・集計・グラフ化。月次レポートが30秒で完成。</div>
       <div class="card-tags"><span class="tag">Excel</span><span class="tag">データ分析</span><span class="tag">自動化</span></div>
       <div class="card-footer"><div class="price">¥2,480</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-
     <div class="card" data-category="writing" data-modal="skill4">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(239,68,68,0.2)">🎯</div>
-        <span class="rarity rarity-epic">Epic</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(239,68,68,0.2)">🎯</div><span class="rarity rarity-epic">Epic</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">営業メール自動生成スキル</div>
       <div class="card-desc">会社名・担当者名を入れるだけでパーソナライズされた営業メールを自動生成。返信率2倍を実現。</div>
       <div class="card-tags"><span class="tag">営業</span><span class="tag">メール</span><span class="tag">BtoB</span></div>
       <div class="card-footer"><div class="price">¥4,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-
     <div class="card" data-category="content" data-modal="skill5">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(16,185,129,0.2)">🎥</div>
-        <span class="rarity rarity-rare">Rare</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(16,185,129,0.2)">🎥</div><span class="rarity rarity-rare">Rare</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">YouTube台本生成スキル</div>
       <div class="card-desc">タイトルとテーマを入力するだけで、フック・本編・CTAまで完璧な台本を自動生成。</div>
       <div class="card-tags"><span class="tag">YouTube</span><span class="tag">コンテンツ</span><span class="tag">SNS</span></div>
       <div class="card-footer"><div class="price">¥1,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-
     <div class="card" data-category="writing" data-modal="skill6">
-      <div class="card-header">
-        <div class="card-icon" style="background:rgba(236,72,153,0.2)">🛍️</div>
-        <span class="rarity rarity-common">Common</span>
-      </div>
+      <div class="card-header"><div class="card-icon" style="background:rgba(236,72,153,0.2)">🛍️</div><span class="rarity rarity-common">Common</span></div>
       <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">EC商品説明文スキル</div>
       <div class="card-desc">商品名・特徴を入力するだけでSEO最適化された商品説明文を自動生成。Amazon・楽天対応。</div>
@@ -441,26 +413,10 @@
     <div class="section-title">📖 使い方</div>
     <div class="section-sub" style="color:var(--muted);margin-bottom:0">スキルを買って装備するだけ。RPGのアイテム購入と同じ感覚です。</div>
     <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3>スキルを選ぶ</h3>
-        <p>マーケットから欲しいスキルを探す。カテゴリ・価格・レアリティで絞り込めます。</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>購入する</h3>
-        <p>クレジットカード・PayPalで即購入。購入完了と同時にスキルファイルがダウンロードできます。</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3>AIに装備する</h3>
-        <p>ダウンロードした <code style="background:rgba(124,58,237,0.2);padding:0.1rem 0.4rem;border-radius:4px;color:#a78bfa">.skill</code> ファイルをダブルクリックするだけ。</p>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <h3>成果を出す</h3>
-        <p>スキルを組み合わせてAIを最強の相棒に。自動化・効率化・収益化を実現してください。</p>
-      </div>
+      <div class="step"><div class="step-num">1</div><h3>スキルを選ぶ</h3><p>マーケットから欲しいスキルを探す。カテゴリ・価格・レアリティで絞り込めます。</p></div>
+      <div class="step"><div class="step-num">2</div><h3>購入する</h3><p>クレジットカード・PayPalで即購入。購入完了と同時にスキルファイルがダウンロードできます。</p></div>
+      <div class="step"><div class="step-num">3</div><h3>AIに装備する</h3><p>ダウンロードした <code style="background:rgba(124,58,237,0.2);padding:0.1rem 0.4rem;border-radius:4px;color:#a78bfa">.skill</code> ファイルをダブルクリックするだけ。</p></div>
+      <div class="step"><div class="step-num">4</div><h3>成果を出す</h3><p>スキルを組み合わせてAIを最強の相棒に。自動化・効率化・収益化を実現してください。</p></div>
     </div>
   </div>
 </div>
@@ -479,43 +435,37 @@
         <li>デジタル商品なので在庫・発送不要</li>
         <li>一度作れば寝ている間も自動で売れる</li>
       </ul>
-      <a href="mailto:skillforge.jp@gmail.com?subject=出品希望" class="btn btn-gold btn-lg">📬 出品を申し込む</a>
+      <button class="btn btn-gold btn-lg" onclick="openSellModal()">📬 出品を申し込む</button>
     </div>
     <div class="sell-card">
       <div class="big">75%</div>
       <div class="label">あなたの取り分</div>
       <ul class="sell-steps">
-        <li><span>①</span> メールで出品申し込み</li>
+        <li><span>①</span> フォームで出品申し込み</li>
         <li><span>②</span> スキルを審査（1〜2営業日）</li>
         <li><span>③</span> 承認後にページ公開</li>
         <li><span>④</span> 売れるたびに振込</li>
       </ul>
-      <a href="mailto:skillforge.jp@gmail.com?subject=出品希望" class="btn btn-primary" style="width:100%;text-align:center;display:block">今すぐ出品申し込み →</a>
+      <button class="btn btn-primary" style="width:100%;text-align:center;display:block" onclick="openSellModal()">今すぐ出品申し込み →</button>
     </div>
   </div>
 </div>
 
-<!-- ===== COMMUNITY ===== -->
+<!-- COMMUNITY -->
 <div id="community" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 0">
   <div class="community-section">
     <div style="margin-bottom:2rem">
       <div class="section-title">👥 コミュニティ</div>
       <div class="section-sub">スキル開発者・ユーザーが集まる場所。Tipsをシェアして、仲間をフォローしよう。</div>
     </div>
-
-    <!-- Stats -->
     <div class="stats-bar" id="community-stats">
       <div class="stat-box"><div class="num" id="stat-members">—</div><div class="lbl">メンバー</div></div>
       <div class="stat-box"><div class="num" id="stat-posts">—</div><div class="lbl">投稿数</div></div>
       <div class="stat-box"><div class="num" id="stat-skills">6</div><div class="lbl">スキル数</div></div>
     </div>
-
     <div class="community-layout">
-      <!-- Feed -->
       <div class="community-feed-area">
         <div id="community-feed-header" style="margin-bottom:1rem;font-weight:700;font-size:1.05rem">📰 みんなの投稿</div>
-
-        <!-- Post composer (shown when logged in) -->
         <div class="post-composer" id="post-composer" style="display:none">
           <textarea id="post-text" placeholder="AIスキルのTipsや質問をシェアしよう... (Shift+Enterで改行)"></textarea>
           <div class="post-composer-footer">
@@ -523,8 +473,6 @@
             <button class="btn btn-primary btn-sm" onclick="submitPost()">投稿する</button>
           </div>
         </div>
-
-        <!-- Login gate (shown when not logged in) -->
         <div class="login-gate" id="community-login-gate">
           <div style="font-size:2.5rem;margin-bottom:0.8rem">🗝️</div>
           <h3>コミュニティに参加する</h3>
@@ -534,16 +482,11 @@
             <button class="btn btn-outline" onclick="openAuthModal('login')">ログイン</button>
           </div>
         </div>
-
-        <!-- Feed posts -->
         <div id="posts-list"></div>
         <div id="posts-loading" style="text-align:center;color:var(--muted);padding:2rem;display:none">読み込み中...</div>
         <div id="posts-empty" style="text-align:center;color:var(--muted);padding:2rem;display:none">まだ投稿がありません。最初の投稿をしてみよう！</div>
       </div>
-
-      <!-- Sidebar -->
       <div class="community-sidebar">
-        <!-- My profile card (when logged in) -->
         <div class="sidebar-card" id="my-profile-card" style="display:none">
           <div class="sidebar-title">⚔️ マイプロフィール</div>
           <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
@@ -566,12 +509,9 @@
           <button class="btn btn-outline btn-sm" style="width:100%" onclick="openProfileModal()">✏️ プロフィール編集</button>
           <button class="btn btn-outline btn-sm" style="width:100%;margin-top:0.5rem;color:var(--muted)" onclick="signOut()">ログアウト</button>
         </div>
-
-        <!-- Members list -->
         <div class="sidebar-card">
           <div class="sidebar-title">🏆 アクティブメンバー</div>
           <div id="members-list">
-            <!-- zuboraai ダイアモンド創設者カード -->
             <div class="founder-wrap">
               <div class="founder-inner">
                 <span class="sparkle-el" style="top:5px;left:8px;animation-delay:0s">✨</span>
@@ -592,36 +532,24 @@
                 </div>
               </div>
             </div>
-            <!-- 一般メンバー -->
             <div class="member-row">
               <div class="avatar avatar-sm">🤖</div>
-              <div class="member-info">
-                <div class="member-name">ai_master_jp</div>
-                <div class="member-stat">フォロワー 24人</div>
-              </div>
+              <div class="member-info"><div class="member-name">ai_master_jp</div><div class="member-stat">フォロワー 24人</div></div>
               <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
             </div>
             <div class="member-row">
               <div class="avatar avatar-sm">💡</div>
-              <div class="member-info">
-                <div class="member-name">prompt_wizard</div>
-                <div class="member-stat">フォロワー 18人</div>
-              </div>
+              <div class="member-info"><div class="member-name">prompt_wizard</div><div class="member-stat">フォロワー 18人</div></div>
               <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
             </div>
             <div class="member-row">
               <div class="avatar avatar-sm">🚀</div>
-              <div class="member-info">
-                <div class="member-name">skill_hunter</div>
-                <div class="member-stat">フォロワー 11人</div>
-              </div>
+              <div class="member-info"><div class="member-name">skill_hunter</div><div class="member-stat">フォロワー 11人</div></div>
               <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
             </div>
           </div>
           <div id="members-list-real" style="display:none"></div>
         </div>
-
-        <!-- Trending tags -->
         <div class="sidebar-card">
           <div class="sidebar-title">🔥 トレンドタグ</div>
           <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
@@ -640,38 +568,14 @@
 
 <!-- FAQ -->
 <div class="faq" id="faq">
-  <div style="text-align:center;margin-bottom:3rem">
-    <div class="section-title">❓ よくある質問</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">スキルはどんな形式で届きますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">購入後すぐに <code>.skill</code> ファイル（ZIPアーカイブ）をダウンロードできます。ファイルをダブルクリックするだけでClaudeに装備できます。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">どのAIに対応していますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">主にClaude（Anthropic）に対応しています。一部スキルはChatGPT・Geminiでも使用可能です。各スキルの詳細ページに対応AIが記載されています。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">返金はできますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">購入後7日以内であれば、スキルが説明通りに動作しない場合に限り全額返金対応します。お問い合わせフォームからご連絡ください。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">スキルを出品するには何が必要ですか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">SKILL.mdファイルを含むスキルディレクトリがあれば出品できます。審査では動作確認・説明文の確認を行います。メールでお問い合わせください。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">支払い方法は何が使えますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">クレジットカード（VISA・Mastercard・JCB等）、PayPal、コンビニ払いに対応予定です。正式オープン時に詳細をお知らせします。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">コミュニティ機能は誰でも使えますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">無料で会員登録するとコミュニティへの投稿、他メンバーのフォロー、タイムラインの閲覧ができます。購入なしでも参加可能です。</div>
-  </div>
-  <div class="faq-item">
-    <div class="faq-q">ベータ版で先行登録すると何かメリットはありますか？<span class="faq-arrow">▼</span></div>
-    <div class="faq-a">先行登録された方には、正式オープン時に30%割引クーポンをプレゼントします。また、新着スキルの最速通知をお届けします。</div>
-  </div>
+  <div style="text-align:center;margin-bottom:3rem"><div class="section-title">❓ よくある質問</div></div>
+  <div class="faq-item"><div class="faq-q">スキルはどんな形式で届きますか？<span class="faq-arrow">▼</span></div><div class="faq-a">購入後すぐに <code>.skill</code> ファイル（ZIPアーカイブ）をダウンロードできます。ファイルをダブルクリックするだけでClaudeに装備できます。</div></div>
+  <div class="faq-item"><div class="faq-q">どのAIに対応していますか？<span class="faq-arrow">▼</span></div><div class="faq-a">主にClaude（Anthropic）に対応しています。一部スキルはChatGPT・Geminiでも使用可能です。各スキルの詳細ページに対応AIが記載されています。</div></div>
+  <div class="faq-item"><div class="faq-q">返金はできますか？<span class="faq-arrow">▼</span></div><div class="faq-a">購入後7日以内であれば、スキルが説明通りに動作しない場合に限り全額返金対応します。お問い合わせフォームからご連絡ください。</div></div>
+  <div class="faq-item"><div class="faq-q">スキルを出品するには何が必要ですか？<span class="faq-arrow">▼</span></div><div class="faq-a">SKILL.mdファイルを含むスキルディレクトリがあれば出品できます。審査では動作確認・説明文の確認を行います。メールでお問い合わせください。</div></div>
+  <div class="faq-item"><div class="faq-q">支払い方法は何が使えますか？<span class="faq-arrow">▼</span></div><div class="faq-a">クレジットカード（VISA・Mastercard・JCB等）、PayPal、コンビニ払いに対応予定です。正式オープン時に詳細をお知らせします。</div></div>
+  <div class="faq-item"><div class="faq-q">コミュニティ機能は誰でも使えますか？<span class="faq-arrow">▼</span></div><div class="faq-a">無料で会員登録するとコミュニティへの投稿、他メンバーのフォロー、タイムラインの閲覧ができます。購入なしでも参加可能です。</div></div>
+  <div class="faq-item"><div class="faq-q">ベータ版で先行登録すると何かメリットはありますか？<span class="faq-arrow">▼</span></div><div class="faq-a">先行登録された方には、正式オープン時に30%割引クーポンをプレゼントします。また、新着スキルの最速通知をお届けします。</div></div>
 </div>
 
 <!-- Contact -->
@@ -691,11 +595,8 @@
   <div class="footer-inner">
     <div class="footer-logo">⚔️ SkillForge</div>
     <div class="footer-links">
-      <a href="#market">マーケット</a>
-      <a href="#how">使い方</a>
-      <a href="#sell">出品する</a>
-      <a href="#community">コミュニティ</a>
-      <a href="#faq">FAQ</a>
+      <a href="#market">マーケット</a><a href="#how">使い方</a><a href="#sell">出品する</a>
+      <a href="#community">コミュニティ</a><a href="#faq">FAQ</a>
       <a href="mailto:skillforge.jp@gmail.com">利用規約</a>
       <a href="mailto:skillforge.jp@gmail.com">プライバシーポリシー</a>
     </div>
@@ -725,35 +626,16 @@
     </div>
     <div id="auth-error" class="auth-error"></div>
     <div id="auth-success" class="auth-success"></div>
-
-    <!-- Signup form -->
     <div id="signup-form">
-      <div class="form-group">
-        <label>ユーザー名</label>
-        <input type="text" id="signup-username" placeholder="例: ai_master" maxlength="20">
-      </div>
-      <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="signup-email" placeholder="your@email.com">
-      </div>
-      <div class="form-group">
-        <label>パスワード（8文字以上）</label>
-        <input type="password" id="signup-password" placeholder="••••••••">
-      </div>
+      <div class="form-group"><label>ユーザー名</label><input type="text" id="signup-username" placeholder="例: ai_master" maxlength="20"></div>
+      <div class="form-group"><label>メールアドレス</label><input type="email" id="signup-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>パスワード（8文字以上）</label><input type="password" id="signup-password" placeholder="••••••••"></div>
       <button class="btn btn-primary" style="width:100%" onclick="signUp()">🚀 無料で登録する</button>
       <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--muted)">登録することで利用規約とプライバシーポリシーに同意したものとみなされます</p>
     </div>
-
-    <!-- Login form -->
     <div id="login-form" style="display:none">
-      <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="login-email" placeholder="your@email.com">
-      </div>
-      <div class="form-group">
-        <label>パスワード</label>
-        <input type="password" id="login-password" placeholder="••••••••">
-      </div>
+      <div class="form-group"><label>メールアドレス</label><input type="email" id="login-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>パスワード</label><input type="password" id="login-password" placeholder="••••••••"></div>
       <button class="btn btn-primary" style="width:100%" onclick="signIn()">ログイン →</button>
     </div>
   </div>
@@ -766,29 +648,73 @@
     <h3 style="margin-bottom:1.5rem">✏️ プロフィール編集</h3>
     <div class="form-group">
       <label>アバター絵文字を選ぶ</label>
-      <div class="emoji-picker" id="emoji-picker">
-        🧑 👩 🧙 🤖 👾 🦸 🐉 🦄 🔥 ⚔️ 🛡️ 💎 🌟 🚀 💡 🎯 🧠 🎮 🦊 🐺 🏆 💪 🎨 🌈
-      </div>
+      <div class="emoji-picker" id="emoji-picker">🧑 👩 🧙 🤖 👾 🦸 🐉 🦄 🔥 ⚔️ 🛡️ 💎 🌟 🚀 💡 🎯 🧠 🎮 🦊 🐺 🏆 💪 🎨 🌈</div>
     </div>
-    <div class="form-group">
-      <label>表示名</label>
-      <input type="text" id="profile-display-name" placeholder="あなたの名前" maxlength="30">
-    </div>
-    <div class="form-group">
-      <label>自己紹介（bio）</label>
-      <input type="text" id="profile-bio" placeholder="AIスキル開発者 / Claude愛好家" maxlength="80">
-    </div>
+    <div class="form-group"><label>表示名</label><input type="text" id="profile-display-name" placeholder="あなたの名前" maxlength="30"></div>
+    <div class="form-group"><label>自己紹介（bio）</label><input type="text" id="profile-bio" placeholder="AIスキル開発者 / Claude愛好家" maxlength="80"></div>
     <button class="btn btn-primary" style="width:100%" onclick="saveProfile()">保存する</button>
   </div>
 </div>
 
-<!-- Setup Instructions Modal -->
+<!-- 出品申し込みモーダル -->
+<div class="modal-overlay" id="sell-modal">
+  <div class="modal" style="max-width:540px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeSellModal()">✕</button>
+    <div style="font-size:2rem;margin-bottom:0.3rem">💰</div>
+    <h3 style="margin-bottom:0.3rem">出品申し込みフォーム</h3>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem">内容を確認後、1〜2営業日以内にご連絡します。</p>
+    <div id="sell-form-area">
+      <div class="form-group"><label>お名前 <span style="color:var(--red)">*</span></label><input type="text" id="sell-name" placeholder="山田 太郎"></div>
+      <div class="form-group"><label>メールアドレス <span style="color:var(--red)">*</span></label><input type="email" id="sell-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>スキル名 <span style="color:var(--red)">*</span></label><input type="text" id="sell-skill-name" placeholder="例: X自動投稿スキル"></div>
+      <div class="form-group">
+        <label>スキルの説明 <span style="color:var(--red)">*</span></label>
+        <textarea id="sell-skill-desc" placeholder="どんなスキルか、どんな問題を解決するか教えてください。" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:0.75rem 1rem;font-size:0.95rem;resize:vertical;font-family:inherit;min-height:90px"></textarea>
+      </div>
+      <div class="form-group">
+        <label>希望販売価格帯</label>
+        <select id="sell-price" style="width:100%;padding:0.75rem 1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.95rem">
+          <option value="">選択してください</option>
+          <option value="〜¥1,000">〜¥1,000</option>
+          <option value="¥1,000〜¥3,000">¥1,000〜¥3,000</option>
+          <option value="¥3,000〜¥5,000">¥3,000〜¥5,000</option>
+          <option value="¥5,000〜¥10,000">¥5,000〜¥10,000</option>
+          <option value="¥10,000以上">¥10,000以上</option>
+          <option value="相談したい">相談したい</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>対応AI</label>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.3rem">
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text);font-size:0.9rem"><input type="checkbox" id="ai-claude" value="Claude"> Claude</label>
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text);font-size:0.9rem"><input type="checkbox" id="ai-chatgpt" value="ChatGPT"> ChatGPT</label>
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text);font-size:0.9rem"><input type="checkbox" id="ai-gemini" value="Gemini"> Gemini</label>
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text);font-size:0.9rem"><input type="checkbox" id="ai-other" value="その他"> その他</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>その他・メッセージ</label>
+        <textarea id="sell-message" placeholder="ご質問・補足事項があればご記入ください。" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:0.75rem 1rem;font-size:0.95rem;resize:vertical;font-family:inherit;min-height:70px"></textarea>
+      </div>
+      <div id="sell-form-error" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:0.7rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;display:none"></div>
+      <button class="btn btn-gold" style="width:100%;font-size:1rem;padding:0.85rem" onclick="submitSellForm()">📬 申し込む</button>
+      <p style="text-align:center;margin-top:0.8rem;font-size:0.78rem;color:var(--muted)">送信後、メールアプリが開きます。そのまま送信してください。</p>
+    </div>
+    <div id="sell-form-success" style="display:none;text-align:center;padding:2rem 0">
+      <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+      <h3 style="margin-bottom:0.8rem">申し込みありがとうございます！</h3>
+      <p style="color:var(--muted);line-height:1.7">内容を確認して<strong style="color:var(--text)">1〜2営業日以内</strong>にご連絡します。<br>しばらくお待ちください。</p>
+      <button class="btn btn-outline" style="margin-top:1.5rem" onclick="closeSellModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup Modal -->
 <div class="modal-overlay" id="setup-modal">
   <div class="modal" style="max-width:600px;max-height:85vh;overflow-y:auto">
     <button class="modal-close" onclick="document.getElementById('setup-modal').classList.remove('open')">✕</button>
     <h3 style="margin-bottom:0.5rem">⚙️ Supabase セットアップ</h3>
     <p style="margin-bottom:1.5rem">無料でコミュニティ機能を有効化する方法（5分でできます）</p>
-
     <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
       <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">① Supabaseアカウントを作る</div>
       <ol style="color:var(--muted);line-height:2;padding-left:1.2rem;font-size:0.9rem">
@@ -797,10 +723,8 @@
         <li>「New project」→ プロジェクト名を入力して作成</li>
       </ol>
     </div>
-
     <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
-      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">② テーブルを作る（SQLをコピペするだけ）</div>
-      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.8rem">Supabaseダッシュボード → SQL Editor → New query に以下をペースト：</p>
+      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">② テーブルを作る</div>
       <div style="background:#0a0a0f;border-radius:8px;padding:1rem;font-size:0.75rem;color:#a78bfa;font-family:monospace;line-height:1.8;overflow-x:auto">
 create table profiles (id uuid references auth.users(id) primary key, username text unique not null, display_name text, bio text, avatar_emoji text default '🧑', created_at timestamp with time zone default now());<br><br>
 create table follows (follower_id uuid references profiles(id) on delete cascade, following_id uuid references profiles(id) on delete cascade, created_at timestamp with time zone default now(), primary key (follower_id, following_id));<br><br>
@@ -818,39 +742,22 @@ create policy "Own insert" on posts for insert with check (auth.uid() = user_id)
 create policy "Own delete" on posts for delete using (auth.uid() = user_id);
       </div>
     </div>
-
-    <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
-      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">③ APIキーをこのファイルに貼る</div>
-      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.5rem">Settings → API から「Project URL」と「anon key」をコピーして index.html の下記の場所に貼り付け：</p>
-      <div style="background:#0a0a0f;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#fbbf24;font-family:monospace">
-        const SUPABASE_URL = 'https://xxxxxxxx.supabase.co';<br>
-        const SUPABASE_ANON_KEY = 'eyJhbGciO...';
-      </div>
-    </div>
-
     <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('setup-modal').classList.remove('open')">閉じる</button>
   </div>
 </div>
 
-<!-- Toast notification -->
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-// SUPABASE CONFIG — Replace these with your actual values
-// Get from: supabase.com → your project → Settings → API
-// ============================================================
 const SUPABASE_URL  = 'https://umqrgnywbneomwrygqxx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtcXJnbnl3Ym5lb213cnlncXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MDY5ODQsImV4cCI6MjA4OTM4Mjk4NH0.yq7bix36dZAgMcZxNjyEJBBU8uz8v6EKwOsWtqauMU4';
-
 const SUPABASE_CONFIGURED = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
-
 let db = null;
 let currentUser = null;
 let currentProfile = null;
 let selectedEmoji = '🧑';
 
-// Init Supabase
 if (SUPABASE_CONFIGURED) {
   db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   document.getElementById('setup-banner').classList.add('hidden');
@@ -862,15 +769,9 @@ if (SUPABASE_CONFIGURED) {
 
 async function initSupabase() {
   const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-  }
+  if (session) { currentUser = session.user; await loadProfile(); }
   updateUIForAuthState();
-  loadPosts();
-  loadMembers();
-  loadStats();
-
+  loadPosts(); loadMembers(); loadStats();
   db.auth.onAuthStateChange(async (event, session) => {
     currentUser = session?.user || null;
     if (currentUser) await loadProfile();
@@ -879,17 +780,8 @@ async function initSupabase() {
   });
 }
 
-// ============================================================
-// AUTH
-// ============================================================
-function openAuthModal(tab = 'signup') {
-  switchAuthTab(tab);
-  document.getElementById('auth-modal').classList.add('open');
-}
-function closeAuthModal() {
-  document.getElementById('auth-modal').classList.remove('open');
-  clearAuthMessages();
-}
+function openAuthModal(tab = 'signup') { switchAuthTab(tab); document.getElementById('auth-modal').classList.add('open'); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); clearAuthMessages(); }
 function switchAuthTab(tab) {
   document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
   document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
@@ -897,46 +789,23 @@ function switchAuthTab(tab) {
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   clearAuthMessages();
 }
-function clearAuthMessages() {
-  document.getElementById('auth-error').style.display = 'none';
-  document.getElementById('auth-success').style.display = 'none';
-}
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function showAuthSuccess(msg) {
-  const el = document.getElementById('auth-success');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
+function clearAuthMessages() { document.getElementById('auth-error').style.display = 'none'; document.getElementById('auth-success').style.display = 'none'; }
+function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.style.display = 'block'; }
+function showAuthSuccess(msg) { const el = document.getElementById('auth-success'); el.textContent = msg; el.style.display = 'block'; }
 
 async function signUp() {
-  if (!SUPABASE_CONFIGURED) { showAuthError('Supabaseを設定してください（セットアップバナーを確認）'); return; }
+  if (!SUPABASE_CONFIGURED) { showAuthError('Supabaseを設定してください'); return; }
   const username = document.getElementById('signup-username').value.trim();
   const email    = document.getElementById('signup-email').value.trim();
   const password = document.getElementById('signup-password').value;
   if (!username || !email || !password) { showAuthError('全ての項目を入力してください'); return; }
   if (password.length < 8) { showAuthError('パスワードは8文字以上にしてください'); return; }
   if (!/^[a-zA-Z0-9_]+$/.test(username)) { showAuthError('ユーザー名は英数字とアンダースコアのみ使えます'); return; }
-
   clearAuthMessages();
   const { data, error } = await db.auth.signUp({ email, password });
   if (error) { showAuthError(error.message); return; }
-
-  // Create profile
-  const { error: profileError } = await db.from('profiles').insert({
-    id: data.user.id,
-    username: username.toLowerCase(),
-    display_name: username,
-    avatar_emoji: '🧑'
-  });
-  if (profileError && !profileError.message.includes('duplicate')) {
-    showAuthError('ユーザー名がすでに使われています。別の名前を試してください。');
-    await db.auth.signOut();
-    return;
-  }
+  const { error: profileError } = await db.from('profiles').insert({ id: data.user.id, username: username.toLowerCase(), display_name: username, avatar_emoji: '🧑' });
+  if (profileError && !profileError.message.includes('duplicate')) { showAuthError('ユーザー名がすでに使われています。'); await db.auth.signOut(); return; }
   showAuthSuccess('✅ 登録完了！メールを確認して認証してください。');
   setTimeout(closeAuthModal, 2000);
 }
@@ -946,7 +815,6 @@ async function signIn() {
   const email    = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   if (!email || !password) { showAuthError('メールとパスワードを入力してください'); return; }
-
   clearAuthMessages();
   const { error } = await db.auth.signInWithPassword({ email, password });
   if (error) { showAuthError('メールまたはパスワードが正しくありません'); return; }
@@ -957,28 +825,21 @@ async function signIn() {
 async function signOut() {
   if (!SUPABASE_CONFIGURED) return;
   await db.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
+  currentUser = null; currentProfile = null;
   updateUIForAuthState();
   showToast('ログアウトしました', 'success');
 }
 
-// ============================================================
-// PROFILE
-// ============================================================
 async function loadProfile() {
   if (!currentUser) return;
   const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
   currentProfile = data;
   if (data) {
     selectedEmoji = data.avatar_emoji || '🧑';
-
-    // follower / following counts
     const [{ count: followers }, { count: following }] = await Promise.all([
       db.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', currentUser.id),
       db.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', currentUser.id)
     ]);
-
     document.getElementById('my-avatar').textContent = data.avatar_emoji || '🧑';
     document.getElementById('my-display-name').textContent = data.display_name || data.username;
     document.getElementById('my-username').textContent = '@' + data.username;
@@ -994,24 +855,17 @@ function openProfileModal() {
   buildEmojiPicker();
   document.getElementById('profile-modal').classList.add('open');
 }
-function closeProfileModal() {
-  document.getElementById('profile-modal').classList.remove('open');
-}
-
+function closeProfileModal() { document.getElementById('profile-modal').classList.remove('open'); }
 function buildEmojiPicker() {
   const emojis = ['🧑','👩','🧙','🤖','👾','🦸','🐉','🦄','🔥','⚔️','🛡️','💎','🌟','🚀','💡','🎯','🧠','🎮','🦊','🐺','🏆','💪','🎨','🌈'];
   const picker = document.getElementById('emoji-picker');
-  picker.innerHTML = emojis.map(e =>
-    `<div class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}',this)">${e}</div>`
-  ).join('');
+  picker.innerHTML = emojis.map(e => `<div class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}',this)">${e}</div>`).join('');
 }
-
 function selectEmoji(emoji, el) {
   selectedEmoji = emoji;
   document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
 }
-
 async function saveProfile() {
   if (!currentUser || !SUPABASE_CONFIGURED) return;
   const display_name = document.getElementById('profile-display-name').value.trim();
@@ -1023,9 +877,6 @@ async function saveProfile() {
   showToast('✅ プロフィールを更新しました', 'success');
 }
 
-// ============================================================
-// POSTS / FEED
-// ============================================================
 async function loadPosts() {
   document.getElementById('posts-loading').style.display = 'block';
   const { data, error } = await db
@@ -1040,10 +891,7 @@ async function loadPosts() {
 
 function renderPosts(posts) {
   const list = document.getElementById('posts-list');
-  if (!posts || posts.length === 0) {
-    document.getElementById('posts-empty').style.display = 'block';
-    return;
-  }
+  if (!posts || posts.length === 0) { document.getElementById('posts-empty').style.display = 'block'; return; }
   document.getElementById('posts-empty').style.display = 'none';
   list.innerHTML = posts.map(p => {
     const profile = p.profiles || {};
@@ -1052,23 +900,21 @@ function renderPosts(posts) {
     const uname  = profile.username || '';
     const time   = timeAgo(p.created_at);
     const isOwn  = currentUser && p.user_id === currentUser.id;
-    return `
-      <div class="post-card" id="post-${p.id}">
-        <div class="post-header">
-          <div class="avatar">${avatar}</div>
-          <div class="post-meta">
-            <div class="post-username">${name} <span style="color:var(--muted);font-weight:400">@${uname}</span></div>
-            <div class="post-time">${time}</div>
-          </div>
-          ${isOwn ? `<button class="post-action" onclick="deletePost('${p.id}')" title="削除">🗑️</button>` : ''}
+    return `<div class="post-card" id="post-${p.id}">
+      <div class="post-header">
+        <div class="avatar">${avatar}</div>
+        <div class="post-meta">
+          <div class="post-username">${name} <span style="color:var(--muted);font-weight:400">@${uname}</span></div>
+          <div class="post-time">${time}</div>
         </div>
-        <div class="post-content">${escapeHtml(p.content).replace(/\n/g,'<br>').replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>')}</div>
-        <div class="post-actions">
-          <button class="post-action" onclick="likePost('${p.id}',this)">♡ <span>${p.likes || 0}</span></button>
-          <button class="post-action" onclick="replyToPost('${escapeHtml(name)}')">💬 返信</button>
-        </div>
+        ${isOwn ? `<button class="post-action" onclick="deletePost('${p.id}')" title="削除">🗑️</button>` : ''}
       </div>
-    `;
+      <div class="post-content">${escapeHtml(p.content).replace(/\n/g,'<br>').replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>')}</div>
+      <div class="post-actions">
+        <button class="post-action" onclick="likePost('${p.id}',this)">♡ <span>${p.likes || 0}</span></button>
+        <button class="post-action" onclick="replyToPost('${escapeHtml(name)}')">💬 返信</button>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1077,7 +923,6 @@ async function submitPost() {
   const text = document.getElementById('post-text').value.trim();
   if (!text) return;
   if (text.length > 280) { showToast('280文字以内で投稿してください', 'error'); return; }
-
   const { error } = await db.from('posts').insert({ user_id: currentUser.id, content: text });
   if (error) { showToast('投稿に失敗しました', 'error'); return; }
   document.getElementById('post-text').value = '';
@@ -1110,13 +955,9 @@ function replyToPost(name) {
   ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ============================================================
-// MEMBERS / FOLLOW
-// ============================================================
 async function loadMembers() {
   const { data } = await db.from('profiles').select('*').order('created_at').limit(10);
   if (!data || data.length === 0) return;
-
   const list = document.getElementById('members-list-real');
   list.innerHTML = await Promise.all(data.map(async (m) => {
     const { count } = await db.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', m.id);
@@ -1130,14 +971,10 @@ async function loadMembers() {
     }
     return `<div class="member-row">
       <div class="avatar avatar-sm">${m.avatar_emoji || '🧑'}</div>
-      <div class="member-info">
-        <div class="member-name">${m.display_name || m.username}</div>
-        <div class="member-stat">フォロワー ${count || 0}人</div>
-      </div>
+      <div class="member-info"><div class="member-name">${m.display_name || m.username}</div><div class="member-stat">フォロワー ${count || 0}人</div></div>
       ${followBtn}
     </div>`;
   })).then(rows => rows.join(''));
-
   document.getElementById('members-list').style.display = 'none';
   list.style.display = 'block';
 }
@@ -1147,19 +984,14 @@ async function toggleFollow(targetId, btn) {
   const isFollowing = btn.classList.contains('btn-following');
   if (isFollowing) {
     await db.from('follows').delete().eq('follower_id', currentUser.id).eq('following_id', targetId);
-    btn.textContent = 'フォロー';
-    btn.className = 'btn btn-follow btn-sm';
+    btn.textContent = 'フォロー'; btn.className = 'btn btn-follow btn-sm';
   } else {
     await db.from('follows').insert({ follower_id: currentUser.id, following_id: targetId });
-    btn.textContent = 'フォロー中';
-    btn.className = 'btn btn-following btn-sm';
+    btn.textContent = 'フォロー中'; btn.className = 'btn btn-following btn-sm';
   }
-  await loadProfile(); // update own counts
+  await loadProfile();
 }
 
-// ============================================================
-// STATS
-// ============================================================
 async function loadStats() {
   const [{ count: members }, { count: posts }] = await Promise.all([
     db.from('profiles').select('*', { count: 'exact', head: true }),
@@ -1169,30 +1001,23 @@ async function loadStats() {
   document.getElementById('stat-posts').textContent = posts || 0;
 }
 
-// ============================================================
-// UI STATE
-// ============================================================
 function updateUIForAuthState() {
   const loggedIn = !!currentUser;
   document.getElementById('community-login-gate').style.display = loggedIn ? 'none' : 'block';
   document.getElementById('post-composer').style.display = loggedIn ? 'block' : 'none';
   document.getElementById('my-profile-card').style.display = loggedIn ? 'block' : 'none';
-
   const navAuthArea = document.getElementById('nav-auth-area');
   const isFounder = currentProfile && currentProfile.username === 'zuboraai';
-
   if (loggedIn && currentProfile) {
     if (isFounder) {
-      // ダイアモンド創設者専用ナビ表示
       navAuthArea.innerHTML = `
-        <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0.9rem;border-radius:999px;cursor:pointer;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(168,85,247,0.15),rgba(6,182,212,0.15));border:1.5px solid;border-image:none;position:relative;overflow:hidden" onclick="openProfileModal()" title="ダイアモンド創設者">
+        <div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0.9rem;border-radius:999px;cursor:pointer;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(168,85,247,0.15),rgba(6,182,212,0.15));border:1.5px solid rgba(245,158,11,0.4)" onclick="openProfileModal()" title="ダイアモンド創設者">
           <span style="font-size:1rem;animation:crownBounce 2s ease-in-out infinite">👑</span>
           <span style="font-weight:900;background:linear-gradient(135deg,#f59e0b,#c084fc,#06b6d4);background-size:200%;animation:rainbowShift 3s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent">@zuboraai</span>
           <span style="font-size:0.6rem;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;padding:0.1rem 0.4rem;border-radius:999px;font-weight:900">💎</span>
         </div>
         <button class="btn btn-outline btn-sm" onclick="signOut()">ログアウト</button>
       `;
-      // マイプロフィールカードもダイアモンド化
       document.getElementById('my-profile-card').style.background = 'linear-gradient(135deg,rgba(245,158,11,0.08),rgba(124,58,237,0.1),rgba(6,182,212,0.06))';
       document.getElementById('my-profile-card').style.border = '1.5px solid rgba(245,158,11,0.4)';
     } else {
@@ -1212,42 +1037,22 @@ function updateUIForAuthState() {
   }
 }
 
-// ============================================================
-// DEMO MODE (when Supabase not configured)
-// ============================================================
 function loadDemoPosts() {
   const demoPosts = [
     { id:'d1', avatar:'⚔️', name:'zuboraai', username:'zuboraai', time:'1時間前', content:'X自動投稿スキルをテスト中！Claudeが自動でAIニュースを生成してくれてる。すごい #AI副業 #Claude活用', likes: 12 },
     { id:'d2', avatar:'🤖', name:'ai_master_jp', username:'ai_master_jp', time:'3時間前', content:'Claudeのスキルシステムが本当に便利。SKILL.mdに書くだけで新しい能力が追加できるのは革命的 #スキル開発 #Claude', likes: 8 },
-    { id:'d3', avatar:'💡', name:'prompt_wizard', username:'prompt_wizard', time:'昨日', content:'みんながシェアしてるプロンプトTips、全部試してみたけど営業メール生成スキルが一番効果あった。返信率が明らかに上がってる #プロンプト', likes: 23 },
-    { id:'d4', avatar:'🚀', name:'skill_hunter', username:'skill_hunter', time:'2日前', content:'SkillForgeに参加したばかりですが、コミュニティの雰囲気が最高です！AIスキルで副業始めます #AI副業 #SkillForge', likes: 5 },
+    { id:'d3', avatar:'💡', name:'prompt_wizard', username:'prompt_wizard', time:'昨日', content:'みんながシェアしてるプロンプトTips、全部試してみたけど営業メール生成スキルが一番効果あった #プロンプト', likes: 23 },
+    { id:'d4', avatar:'🚀', name:'skill_hunter', username:'skill_hunter', time:'2日前', content:'SkillForgeに参加したばかりですが、コミュニティの雰囲気が最高です！AIスキルで副業始めます #AI副業', likes: 5 },
   ];
   document.getElementById('posts-list').innerHTML = demoPosts.map(p => `
     <div class="post-card">
-      <div class="post-header">
-        <div class="avatar">${p.avatar}</div>
-        <div class="post-meta">
-          <div class="post-username">${p.name} <span style="color:var(--muted);font-weight:400">@${p.username}</span></div>
-          <div class="post-time">${p.time}</div>
-        </div>
-      </div>
+      <div class="post-header"><div class="avatar">${p.avatar}</div><div class="post-meta"><div class="post-username">${p.name} <span style="color:var(--muted);font-weight:400">@${p.username}</span></div><div class="post-time">${p.time}</div></div></div>
       <div class="post-content">${p.content.replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>')}</div>
-      <div class="post-actions">
-        <button class="post-action" onclick="openAuthModal()">♡ <span>${p.likes}</span></button>
-        <button class="post-action" onclick="openAuthModal()">💬 返信</button>
-      </div>
-    </div>
-  `).join('');
+      <div class="post-actions"><button class="post-action" onclick="openAuthModal()">♡ <span>${p.likes}</span></button><button class="post-action" onclick="openAuthModal()">💬 返信</button></div>
+    </div>`).join('');
 }
+function loadDemoStats() { document.getElementById('stat-members').textContent = '4'; document.getElementById('stat-posts').textContent = '4'; }
 
-function loadDemoStats() {
-  document.getElementById('stat-members').textContent = '4';
-  document.getElementById('stat-posts').textContent = '4';
-}
-
-// ============================================================
-// UTILITIES
-// ============================================================
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const m = Math.floor(diff / 60000);
@@ -1255,19 +1060,42 @@ function timeAgo(dateStr) {
   if (m < 60) return m + '分前';
   const h = Math.floor(m / 60);
   if (h < 24) return h + '時間前';
-  const d = Math.floor(h / 24);
-  return d + '日前';
+  return Math.floor(h / 24) + '日前';
 }
-
-function escapeHtml(text) {
-  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+function escapeHtml(text) { return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
+  t.textContent = msg; t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// 出品申し込みフォーム
+// ============================================================
+function openSellModal() {
+  document.getElementById('sell-modal').classList.add('open');
+  document.getElementById('sell-form-area').style.display = 'block';
+  document.getElementById('sell-form-success').style.display = 'none';
+  document.getElementById('sell-form-error').style.display = 'none';
+}
+function closeSellModal() { document.getElementById('sell-modal').classList.remove('open'); }
+function submitSellForm() {
+  const name      = document.getElementById('sell-name').value.trim();
+  const email     = document.getElementById('sell-email').value.trim();
+  const skillName = document.getElementById('sell-skill-name').value.trim();
+  const skillDesc = document.getElementById('sell-skill-desc').value.trim();
+  const price     = document.getElementById('sell-price').value;
+  const message   = document.getElementById('sell-message').value.trim();
+  const ais       = ['ai-claude','ai-chatgpt','ai-gemini','ai-other']
+                      .filter(id => document.getElementById(id).checked)
+                      .map(id => document.getElementById(id).value);
+  const errEl = document.getElementById('sell-form-error');
+  if (!name || !email || !skillName || !skillDesc) { errEl.textContent = '必須項目（*）を全て入力してください'; errEl.style.display = 'block'; return; }
+  if (!email.includes('@')) { errEl.textContent = '正しいメールアドレスを入力してください'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  const body = encodeURIComponent(`【出品申し込み】\n\nお名前: ${name}\nメール: ${email}\nスキル名: ${skillName}\n説明:\n${skillDesc}\n希望価格帯: ${price || '未選択'}\n対応AI: ${ais.length ? ais.join(', ') : '未選択'}\nメッセージ:\n${message || 'なし'}`);
+  window.location.href = `mailto:skillforge.jp@gmail.com?subject=${encodeURIComponent('【出品申し込み】' + skillName)}&body=${body}`;
+  setTimeout(() => { document.getElementById('sell-form-area').style.display = 'none'; document.getElementById('sell-form-success').style.display = 'block'; }, 800);
 }
 
 // ============================================================
@@ -1282,7 +1110,6 @@ const skills = {
   skill6: { icon:'🛍️', title:'EC商品説明文スキル', rarity:'Common', price:'¥980', desc:'商品名・特徴を入力するだけでSEO最適化された商品説明文を自動生成。Amazon・楽天対応。', features:['Amazon・楽天・Yahoo!ショッピング対応','SEOキーワードを自動で含める','箇条書き・文章の両形式で出力','1商品30秒で説明文を量産','ターゲット層に合わせたトーン調整'] }
 };
 
-// Category filter
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1294,7 +1121,6 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// Skill modal
 document.querySelectorAll('.card[data-modal]').forEach(card => {
   card.addEventListener('click', () => {
     const s = skills[card.dataset.modal];
@@ -1313,33 +1139,20 @@ document.querySelectorAll('.card[data-modal]').forEach(card => {
           <button class="btn btn-primary" onclick="registerWaitlist()">登録</button>
         </div>
         <div style="font-size:0.8rem;color:var(--muted);text-align:center">先行登録で30%OFFクーポンプレゼント</div>
-      </div>
-    `;
+      </div>`;
     document.getElementById('skill-modal-overlay').classList.add('open');
   });
 });
 
-document.getElementById('skill-modal-close').addEventListener('click', () => {
-  document.getElementById('skill-modal-overlay').classList.remove('open');
-});
-document.getElementById('skill-modal-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('skill-modal-overlay'))
-    document.getElementById('skill-modal-overlay').classList.remove('open');
-});
+document.getElementById('skill-modal-close').addEventListener('click', () => { document.getElementById('skill-modal-overlay').classList.remove('open'); });
+document.getElementById('skill-modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('skill-modal-overlay')) document.getElementById('skill-modal-overlay').classList.remove('open'); });
 
 function registerWaitlist() {
   const email = document.getElementById('waitlist-email').value;
   if (!email || !email.includes('@')) { alert('正しいメールアドレスを入力してください'); return; }
-  document.getElementById('modal-content').innerHTML = `
-    <div style="text-align:center;padding:2rem 0">
-      <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
-      <h3 style="margin-bottom:1rem">登録完了！</h3>
-      <p style="color:var(--muted)">正式オープン時に<br><strong style="color:var(--text)">${email}</strong><br>へ30%OFFクーポンをお送りします。</p>
-    </div>
-  `;
+  document.getElementById('modal-content').innerHTML = `<div style="text-align:center;padding:2rem 0"><div style="font-size:3rem;margin-bottom:1rem">🎉</div><h3 style="margin-bottom:1rem">登録完了！</h3><p style="color:var(--muted)">正式オープン時に<br><strong style="color:var(--text)">${email}</strong><br>へ30%OFFクーポンをお送りします。</p></div>`;
 }
 
-// FAQ accordion
 document.querySelectorAll('.faq-q').forEach(q => {
   q.addEventListener('click', () => {
     const answer = q.nextElementSibling;
@@ -1351,15 +1164,10 @@ document.querySelectorAll('.faq-q').forEach(q => {
   });
 });
 
-// Post textarea char count
 const postText = document.getElementById('post-text');
 if (postText) {
-  postText.addEventListener('input', () => {
-    document.getElementById('char-count').textContent = `${postText.value.length} / 280`;
-  });
-  postText.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitPost(); }
-  });
+  postText.addEventListener('input', () => { document.getElementById('char-count').textContent = `${postText.value.length} / 280`; });
+  postText.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitPost(); } });
 }
 </script>
 </body>
