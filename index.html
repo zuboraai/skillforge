@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillForge – AIエージェントに装備を</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -15,20 +16,35 @@
       --text: #e2e8f0;
       --muted: #94a3b8;
       --border: #2d2d4e;
+      --green: #10b981;
+      --red: #ef4444;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
     body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
-    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); background: rgba(10,10,15,0.9); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
-    .logo { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .logo span { font-size: 0.9rem; -webkit-text-fill-color: var(--muted); font-weight: 400; margin-left: 0.3rem; }
-    .nav-links { display: flex; gap: 2rem; align-items: center; }
+
+    .setup-banner { background: linear-gradient(90deg, rgba(245,158,11,0.15), rgba(124,58,237,0.15)); border-bottom: 1px solid rgba(245,158,11,0.3); padding: 0.7rem 2rem; text-align: center; font-size: 0.85rem; color: #fbbf24; display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .setup-banner a { color: #a78bfa; text-decoration: underline; cursor: pointer; }
+    .setup-banner.hidden { display: none; }
+
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); background: rgba(10,10,15,0.95); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+    .logo { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+    .logo-badge { font-size: 0.75rem; background: var(--gold); color: #000; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700; margin-left: 0.4rem; vertical-align: middle; }
+    .nav-links { display: flex; gap: 1.8rem; align-items: center; }
     .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
     .nav-links a:hover { color: var(--text); }
-    .btn { padding: 0.6rem 1.4rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .btn { padding: 0.6rem 1.4rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; text-decoration: none; display: inline-block; }
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
     .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-gold:hover { background: #d97706; transform: translateY(-1px); }
+    .btn-sm { padding: 0.4rem 1rem; font-size: 0.82rem; }
+    .btn-follow { background: var(--accent); color: white; border: 1px solid var(--accent); }
+    .btn-follow:hover { background: transparent; color: var(--accent); }
+    .btn-following { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-following:hover { background: rgba(239,68,68,0.1); color: var(--red); border-color: var(--red); }
+
     .hero { text-align: center; padding: 6rem 2rem 4rem; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%); pointer-events: none; }
     .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.85rem; color: #a78bfa; margin-bottom: 2rem; }
@@ -37,22 +53,23 @@
     .hero p { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 3rem; line-height: 1.7; }
     .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
     .btn-lg { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 10px; }
-    .stats { display: flex; justify-content: center; gap: 4rem; padding: 3rem 2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-    .stat { text-align: center; }
-    .stat-num { font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .stat-label { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
-    .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .beta-notice { display: inline-block; margin-top: 2rem; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; padding: 0.6rem 1.5rem; border-radius: 999px; font-size: 0.85rem; }
+
+    .section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
     .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .section-sub { color: var(--muted); margin-bottom: 2rem; }
+    .section-sub { color: var(--muted); margin-bottom: 2.5rem; }
+
     .tabs { display: flex; gap: 0.8rem; margin-bottom: 2rem; flex-wrap: wrap; }
     .tab { padding: 0.5rem 1.2rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
     .tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block; }
     .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.3s; }
     .card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(124,58,237,0.2); }
     .card:hover::before { opacity: 1; }
+    .card.hidden { display: none; }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
     .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
     .rarity { padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
@@ -66,167 +83,844 @@
     .tag { padding: 0.2rem 0.6rem; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); border-radius: 6px; font-size: 0.75rem; color: #a78bfa; }
     .card-footer { display: flex; justify-content: space-between; align-items: center; }
     .price { font-size: 1.3rem; font-weight: 900; color: var(--gold); }
-    .rating { display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--muted); }
-    .featured { background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1)); border: 1px solid rgba(124,58,237,0.3); border-radius: 20px; padding: 3rem; margin-bottom: 3rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
-    .featured-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--gold); color: #000; padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
-    .featured h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.8rem; }
-    .featured p { color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
-    .featured-price { text-align: right; }
-    .featured-price .big-price { font-size: 2.5rem; font-weight: 900; color: var(--gold); }
-    .featured-price .original { color: var(--muted); text-decoration: line-through; font-size: 1rem; }
+    .rating { font-size: 0.85rem; color: var(--muted); }
+    .coming-soon-badge { position: absolute; top: 1rem; right: 1rem; background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; }
+
     .how { background: var(--surface); padding: 5rem 2rem; }
     .how-inner { max-width: 1000px; margin: 0 auto; text-align: center; }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-top: 3rem; }
     .step { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; }
-    .step-num { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; margin: 0 auto 1rem; }
+    .step-num { width: 52px; height: 52px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; margin: 0 auto 1rem; }
     .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
     .step p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-    .seller-cta { background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%); border-radius: 24px; padding: 4rem 3rem; text-align: center; max-width: 900px; margin: 4rem auto; }
-    .seller-cta h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: 1rem; }
-    .seller-cta p { color: rgba(255,255,255,0.8); margin-bottom: 2rem; font-size: 1.1rem; }
-    .seller-stats { display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
-    .seller-stat .num { font-size: 1.8rem; font-weight: 900; }
-    .seller-stat .label { font-size: 0.85rem; opacity: 0.8; }
-    footer { border-top: 1px solid var(--border); padding: 3rem 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
-    footer .footer-logo { font-size: 1.3rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
-    @media (max-width: 600px) { .featured { grid-template-columns: 1fr; } .featured-price { text-align: left; } nav .nav-links { display: none; } }
+
+    .sell { background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(6,182,212,0.08)); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 5rem 2rem; }
+    .sell-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .sell h2 { font-size: 2rem; font-weight: 900; margin-bottom: 1rem; }
+    .sell p { color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+    .sell-perks { list-style: none; margin-bottom: 2rem; }
+    .sell-perks li { display: flex; align-items: center; gap: 0.7rem; color: var(--muted); margin-bottom: 0.8rem; font-size: 0.95rem; }
+    .sell-perks li::before { content: '✅'; font-size: 1rem; }
+    .sell-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; text-align: center; }
+    .sell-card .big { font-size: 3rem; font-weight: 900; color: var(--gold); }
+    .sell-card .label { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .sell-steps { text-align: left; list-style: none; margin-bottom: 1.5rem; }
+    .sell-steps li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; display: flex; gap: 0.8rem; }
+    .sell-steps li span { color: var(--accent); font-weight: 700; }
+
+    .community-section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .community-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
+
+    .post-composer { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem; }
+    .post-composer textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 0.9rem; font-size: 0.95rem; resize: none; font-family: inherit; min-height: 80px; }
+    .post-composer textarea:focus { outline: none; border-color: var(--accent); }
+    .post-composer-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; }
+    .post-composer-hint { font-size: 0.8rem; color: var(--muted); }
+
+    .post-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+    .post-card:hover { border-color: rgba(124,58,237,0.4); }
+    .post-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .avatar-sm { width: 32px; height: 32px; font-size: 1rem; }
+    .post-meta { flex: 1; }
+    .post-username { font-weight: 700; font-size: 0.95rem; }
+    .post-time { font-size: 0.78rem; color: var(--muted); }
+    .post-content { color: var(--text); font-size: 0.95rem; line-height: 1.7; margin-bottom: 0.8rem; }
+    .post-actions { display: flex; gap: 1rem; }
+    .post-action { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.6rem; border-radius: 6px; transition: all 0.2s; }
+    .post-action:hover { background: rgba(124,58,237,0.1); color: var(--accent); }
+    .post-action.liked { color: var(--red); }
+
+    .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem; }
+    .sidebar-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .member-row { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0; border-bottom: 1px solid rgba(45,45,78,0.5); }
+    .member-row:last-child { border-bottom: none; }
+    .member-info { flex: 1; min-width: 0; }
+    .member-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .member-stat { font-size: 0.75rem; color: var(--muted); }
+    .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+
+    .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+    .stat-box .num { font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-box .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .login-gate { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 3rem 2rem; text-align: center; margin-bottom: 1.5rem; }
+    .login-gate h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .login-gate p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+    .nav-profile { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); border-radius: 999px; cursor: pointer; font-size: 0.85rem; color: #a78bfa; transition: all 0.2s; }
+    .nav-profile:hover { background: rgba(124,58,237,0.25); }
+
+    .faq { padding: 5rem 2rem; max-width: 800px; margin: 0 auto; }
+    .faq-item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .faq-q { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; background: var(--card); transition: background 0.2s; }
+    .faq-q:hover { background: #1f1f35; }
+    .faq-a { padding: 0 1.5rem; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+    .faq-a.open { max-height: 300px; padding: 1.2rem 1.5rem; }
+    .faq-arrow { transition: transform 0.3s; font-size: 0.8rem; color: var(--muted); }
+    .faq-arrow.open { transform: rotate(180deg); }
+
+    .contact { background: var(--surface); padding: 5rem 2rem; text-align: center; }
+    .contact-inner { max-width: 600px; margin: 0 auto; }
+    .contact h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 1rem; }
+    .contact p { color: var(--muted); margin-bottom: 2rem; line-height: 1.7; }
+    .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; max-width: 480px; width: 90%; position: relative; }
+    .modal-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
+    .modal-close:hover { color: var(--text); }
+    .modal h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .modal .modal-price { font-size: 2rem; font-weight: 900; color: var(--gold); margin: 1rem 0; }
+    .modal p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .modal-features { list-style: none; margin-bottom: 1.5rem; }
+    .modal-features li { padding: 0.4rem 0; color: var(--muted); font-size: 0.9rem; }
+    .modal-features li::before { content: '✅ '; }
+    .modal-cta { display: flex; flex-direction: column; gap: 0.8rem; }
+    .waitlist-form { display: flex; gap: 0.5rem; }
+    .waitlist-form input { flex: 1; padding: 0.7rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; }
+    .waitlist-form input:focus { outline: none; border-color: var(--accent); }
+
+    .auth-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+    .auth-tab { flex: 1; padding: 0.8rem; text-align: center; cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; }
+    .form-group input { width: 100%; padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; }
+    .form-group input:focus { outline: none; border-color: var(--accent); }
+    .auth-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .auth-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+
+    .emoji-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4rem; margin-bottom: 1rem; }
+    .emoji-opt { font-size: 1.4rem; cursor: pointer; padding: 0.4rem; border-radius: 8px; text-align: center; border: 2px solid transparent; transition: all 0.2s; }
+    .emoji-opt:hover, .emoji-opt.selected { border-color: var(--accent); background: rgba(124,58,237,0.15); }
+
+    footer { border-top: 1px solid var(--border); padding: 3rem 2rem; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-size: 1.2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { color: var(--muted); font-size: 0.85rem; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; font-size: 0.9rem; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(16,185,129,0.5); }
+    .toast.error { border-color: rgba(239,68,68,0.5); }
+
+    @media (max-width: 900px) { .community-layout { grid-template-columns: 1fr; } .community-sidebar { order: -1; } }
+    @media (max-width: 768px) { .sell-inner { grid-template-columns: 1fr; gap: 2rem; } nav .nav-links { display: none; } .modal { padding: 1.8rem; } .stats-bar { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
+
+<div class="setup-banner" id="setup-banner">
+  ⚠️ <strong>管理者向け:</strong> Supabaseを接続するとコミュニティ機能が有効になります。
+  <a onclick="document.getElementById('setup-modal').classList.add('open')">セットアップ方法を見る →</a>
+</div>
+
 <nav>
-  <div class="logo">⚔️ SkillForge <span>β</span></div>
+  <a href="#" class="logo">⚔️ SkillForge <span class="logo-badge">β</span></a>
   <div class="nav-links">
-    <a href="#">マーケット</a><a href="#">出品する</a><a href="#">ランキング</a><a href="#">使い方</a>
+    <a href="#market">マーケット</a>
+    <a href="#how">使い方</a>
+    <a href="#sell">出品する</a>
+    <a href="#community">コミュニティ</a>
+    <a href="#faq">FAQ</a>
   </div>
-  <div style="display:flex;gap:0.8rem">
-    <button class="btn btn-outline">ログイン</button>
-    <button class="btn btn-primary">無料で始める</button>
+  <div style="display:flex;gap:0.8rem;align-items:center" id="nav-auth-area">
+    <button class="btn btn-primary" onclick="openAuthModal()">ログイン / 登録</button>
   </div>
 </nav>
-<section class="hero">
-  <div class="hero-badge">⚡ 日本初 AIスキルマーケットプレイス</div>
+
+<section class="hero" id="top">
+  <div class="hero-badge">⚡ 日本初 AIスキルマーケットプレイス ベータ版オープン</div>
   <h1>AIエージェントに<br><span class="highlight">最強の装備</span>を与えよ</h1>
   <p>RPGのスキルショップのように、AIに新しい能力を追加購入。<br>開発者は作ったスキルを売って収益化できます。</p>
   <div class="hero-cta">
-    <button class="btn btn-primary btn-lg">🛒 スキルを探す</button>
-    <button class="btn btn-outline btn-lg">💰 出品して稼ぐ</button>
+    <a href="#market" class="btn btn-primary btn-lg">🛒 スキルを探す</a>
+    <a href="#community" class="btn btn-outline btn-lg">👥 コミュニティに参加</a>
   </div>
+  <div class="beta-notice">🚀 現在ベータ版 — 無料で先行登録受付中</div>
 </section>
-<div class="stats">
-  <div class="stat"><div class="stat-num">247</div><div class="stat-label">販売中のスキル</div></div>
-  <div class="stat"><div class="stat-num">1,834</div><div class="stat-label">登録ユーザー</div></div>
-  <div class="stat"><div class="stat-num">¥4.2M</div><div class="stat-label">出品者総収益</div></div>
-  <div class="stat"><div class="stat-num">4.8 ⭐</div><div class="stat-label">平均評価</div></div>
-</div>
-<div class="section">
-  <div class="featured">
-    <div>
-      <div class="featured-badge">🔥 今週のピックアップ</div>
-      <h2>副業AIシステム完全パック</h2>
-      <p>X自動投稿 × アフィリエイト自動化 × コンテンツ生成を全部まとめたスキルバンドル。PCがオフでも24時間稼働し続けるAI副業システム。</p>
-      <div class="card-tags">
-        <span class="tag">X自動投稿</span><span class="tag">アフィリエイト</span><span class="tag">GitHub Actions</span><span class="tag">Claude API</span>
-      </div>
-      <button class="btn btn-primary">今すぐ入手 →</button>
-    </div>
-    <div class="featured-price">
-      <div class="original">¥19,800</div>
-      <div class="big-price">¥9,800</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem">期間限定 50% OFF</div>
-      <div style="margin-top:1rem;padding:0.8rem;background:rgba(0,0,0,0.3);border-radius:10px;font-size:0.85rem;color:var(--muted)">⭐ 4.9 (128件のレビュー)<br>📦 バンドル3スキル含む</div>
-    </div>
-  </div>
+
+<div class="section" id="market">
+  <div class="section-title">🛒 スキルマーケット</div>
+  <div class="section-sub">AIエージェントに装備させるスキルを探す。カテゴリで絞り込めます。</div>
   <div class="tabs">
-    <button class="tab active">🔥 人気</button>
-    <button class="tab">🆕 新着</button>
-    <button class="tab">🤖 自動化</button>
-    <button class="tab">✍️ ライティング</button>
-    <button class="tab">📊 ビジネス</button>
-    <button class="tab">🎮 エンタメ</button>
+    <button class="tab active" data-filter="all">🔥 すべて</button>
+    <button class="tab" data-filter="automation">🤖 自動化</button>
+    <button class="tab" data-filter="writing">✍️ ライティング</button>
+    <button class="tab" data-filter="business">📊 ビジネス</button>
+    <button class="tab" data-filter="content">🎥 コンテンツ</button>
   </div>
-  <div class="grid">
-    <div class="card">
+  <div class="grid" id="skill-grid">
+    <div class="card" data-category="automation" data-modal="skill1">
       <div class="card-header"><div class="card-icon" style="background:rgba(124,58,237,0.2)">🚀</div><span class="rarity rarity-epic">Epic</span></div>
+      <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">X自動投稿スキル</div>
       <div class="card-desc">AIがAIニュースを自動生成してXに1日3回投稿。PCがオフでもGitHub Actionsで24時間稼働。</div>
       <div class="card-tags"><span class="tag">自動化</span><span class="tag">Claude API</span><span class="tag">収益化</span></div>
-      <div class="card-footer"><div class="price">¥3,980</div><div class="rating">⭐ 4.8 (42)</div></div>
+      <div class="card-footer"><div class="price">¥3,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-category="business" data-modal="skill2">
       <div class="card-header"><div class="card-icon" style="background:rgba(245,158,11,0.2)">📝</div><span class="rarity rarity-legendary">Legendary</span></div>
+      <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">法律文書レビュースキル</div>
       <div class="card-desc">契約書・利用規約・NDAをClaudeが自動レビュー。リスク箇所をハイライトしてわかりやすく解説。</div>
       <div class="card-tags"><span class="tag">法律</span><span class="tag">ビジネス</span><span class="tag">Word対応</span></div>
-      <div class="card-footer"><div class="price">¥8,800</div><div class="rating">⭐ 4.9 (87)</div></div>
+      <div class="card-footer"><div class="price">¥8,800</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-category="business" data-modal="skill3">
       <div class="card-header"><div class="card-icon" style="background:rgba(6,182,212,0.2)">📊</div><span class="rarity rarity-rare">Rare</span></div>
+      <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">Excel自動集計スキル</div>
       <div class="card-desc">散らかったExcelデータをAIが整理・集計・グラフ化。月次レポートが30秒で完成。</div>
       <div class="card-tags"><span class="tag">Excel</span><span class="tag">データ分析</span><span class="tag">自動化</span></div>
-      <div class="card-footer"><div class="price">¥2,480</div><div class="rating">⭐ 4.7 (53)</div></div>
+      <div class="card-footer"><div class="price">¥2,480</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-category="writing" data-modal="skill4">
       <div class="card-header"><div class="card-icon" style="background:rgba(239,68,68,0.2)">🎯</div><span class="rarity rarity-epic">Epic</span></div>
+      <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">営業メール自動生成スキル</div>
       <div class="card-desc">会社名・担当者名を入れるだけでパーソナライズされた営業メールを自動生成。返信率2倍を実現。</div>
       <div class="card-tags"><span class="tag">営業</span><span class="tag">メール</span><span class="tag">BtoB</span></div>
-      <div class="card-footer"><div class="price">¥4,980</div><div class="rating">⭐ 4.6 (31)</div></div>
+      <div class="card-footer"><div class="price">¥4,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-category="content" data-modal="skill5">
       <div class="card-header"><div class="card-icon" style="background:rgba(16,185,129,0.2)">🎥</div><span class="rarity rarity-rare">Rare</span></div>
+      <span class="coming-soon-badge">先行登録受付中</span>
       <div class="card-title">YouTube台本生成スキル</div>
       <div class="card-desc">タイトルとテーマを入力するだけで、フック・本編・CTAまで完璧な台本を自動生成。</div>
       <div class="card-tags"><span class="tag">YouTube</span><span class="tag">コンテンツ</span><span class="tag">SNS</span></div>
-      <div class="card-footer"><div class="price">¥1,980</div><div class="rating">⭐ 4.8 (96)</div></div>
+      <div class="card-footer"><div class="price">¥1,980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-category="writing" data-modal="skill6">
       <div class="card-header"><div class="card-icon" style="background:rgba(236,72,153,0.2)">🛍️</div><span class="rarity rarity-common">Common</span></div>
-      <div class="card-title">ECサイト商品説明文スキル</div>
+      <span class="coming-soon-badge">先行登録受付中</span>
+      <div class="card-title">EC商品説明文スキル</div>
       <div class="card-desc">商品名・特徴を入力するだけでSEO最適化された商品説明文を自動生成。Amazon・楽天対応。</div>
       <div class="card-tags"><span class="tag">EC</span><span class="tag">SEO</span><span class="tag">コピー</span></div>
-      <div class="card-footer"><div class="price">¥980</div><div class="rating">⭐ 4.5 (144)</div></div>
+      <div class="card-footer"><div class="price">¥980</div><div class="rating">🔔 先着受付中</div></div>
     </div>
   </div>
 </div>
-<div class="how">
+
+<div class="how" id="how">
   <div class="how-inner">
-    <div class="section-title">使い方は3ステップ</div>
-    <div class="section-sub">RPGゲームのアイテム装備と同じくらい簡単です</div>
+    <div class="section-title">📖 使い方</div>
+    <div class="section-sub" style="color:var(--muted);margin-bottom:0">スキルを買って装備するだけ。RPGのアイテム購入と同じ感覚です。</div>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><h3>スキルを選ぶ</h3><p>用途に合ったスキルをマーケットから探して購入する。レビューとデモで事前確認できます。</p></div>
-      <div class="step"><div class="step-num">2</div><h3>AIに装備する</h3><p>購入したスキルファイルをClaudeのスキルフォルダに配置。すぐに新しい能力が使えます。</p></div>
-      <div class="step"><div class="step-num">3</div><h3>成果を出す</h3><p>自動化・効率化・収益化。スキルを組み合わせてAIを最強の相棒にアップグレード。</p></div>
+      <div class="step"><div class="step-num">1</div><h3>スキルを選ぶ</h3><p>マーケットから欲しいスキルを探す。カテゴリ・価格・レアリティで絞り込めます。</p></div>
+      <div class="step"><div class="step-num">2</div><h3>先行登録する</h3><p>メールアドレスを登録して正式オープン時に30%OFFクーポンをゲット。</p></div>
+      <div class="step"><div class="step-num">3</div><h3>AIに装備する</h3><p>ダウンロードした <code style="background:rgba(124,58,237,0.2);padding:0.1rem 0.4rem;border-radius:4px;color:#a78bfa">.skill</code> ファイルをダブルクリックするだけ。</p></div>
+      <div class="step"><div class="step-num">4</div><h3>成果を出す</h3><p>スキルを組み合わせてAIを最強の相棒に。自動化・効率化を実現してください。</p></div>
     </div>
   </div>
 </div>
-<div class="section">
-  <div class="seller-cta">
-    <h2>あなたのスキルを売りませんか？</h2>
-    <p>作ったAIスキルをSkillForgeで販売して収益化。<br>登録無料・手数料25%のみ。</p>
-    <div class="seller-stats">
-      <div class="seller-stat"><div class="num">75%</div><div class="label">出品者の収益率</div></div>
-      <div class="seller-stat"><div class="num">¥0</div><div class="label">初期費用</div></div>
-      <div class="seller-stat"><div class="num">1,834人</div><div class="label">潜在的な購入者</div></div>
+
+<div class="sell" id="sell">
+  <div class="sell-inner">
+    <div>
+      <div style="font-size:0.85rem;color:var(--accent);font-weight:700;margin-bottom:0.5rem">💰 出品者向け</div>
+      <h2>あなたのスキルを<br>売りませんか？</h2>
+      <p>作ったAIスキルをSkillForgeに出品して収益化。登録は無料、売れたときだけ手数料をいただきます。</p>
+      <ul class="sell-perks">
+        <li>販売額の75%があなたの収益</li>
+        <li>月額固定費ゼロ・売れたときだけ手数料25%</li>
+        <li>Claude・ChatGPT・Gemini対応スキル全て出品可</li>
+        <li>デジタル商品なので在庫・発送不要</li>
+        <li>一度作れば寝ている間も自動で売れる</li>
+      </ul>
+      <a href="mailto:skillforge.jp@gmail.com?subject=出品希望" class="btn btn-gold btn-lg">📬 出品を申し込む</a>
     </div>
-    <button class="btn" style="background:white;color:var(--accent);font-size:1.1rem;padding:0.9rem 2.5rem;border-radius:10px;font-weight:700">今すぐ出品を始める →</button>
+    <div class="sell-card">
+      <div class="big">75%</div>
+      <div class="label">あなたの取り分</div>
+      <ul class="sell-steps">
+        <li><span>①</span> メールで出品申し込み</li>
+        <li><span>②</span> スキルを審査（1〜2営業日）</li>
+        <li><span>③</span> 承認後にページ公開</li>
+        <li><span>④</span> 売れるたびに振込</li>
+      </ul>
+      <a href="mailto:skillforge.jp@gmail.com?subject=出品希望" class="btn btn-primary" style="width:100%;text-align:center;display:block">今すぐ出品申し込み →</a>
+    </div>
   </div>
 </div>
+
+<div id="community" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:5rem 0">
+  <div class="community-section">
+    <div style="margin-bottom:2rem">
+      <div class="section-title">👥 コミュニティ</div>
+      <div class="section-sub">スキル開発者・ユーザーが集まる場所。Tipsをシェアして、仲間をフォローしよう。</div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-box"><div class="num" id="stat-members">—</div><div class="lbl">メンバー</div></div>
+      <div class="stat-box"><div class="num" id="stat-posts">—</div><div class="lbl">投稿数</div></div>
+      <div class="stat-box"><div class="num" id="stat-skills">6</div><div class="lbl">スキル数</div></div>
+    </div>
+    <div class="community-layout">
+      <div>
+        <div style="margin-bottom:1rem;font-weight:700;font-size:1.05rem">📰 みんなの投稿</div>
+        <div class="post-composer" id="post-composer" style="display:none">
+          <textarea id="post-text" placeholder="AIスキルのTipsや質問をシェアしよう... (Enterで投稿)"></textarea>
+          <div class="post-composer-footer">
+            <span class="post-composer-hint" id="char-count">0 / 280</span>
+            <button class="btn btn-primary btn-sm" onclick="submitPost()">投稿する</button>
+          </div>
+        </div>
+        <div class="login-gate" id="community-login-gate">
+          <div style="font-size:2.5rem;margin-bottom:0.8rem">🗝️</div>
+          <h3>コミュニティに参加する</h3>
+          <p>無料で登録してAIスキルの情報をシェア。<br>他のメンバーをフォローしてタイムラインを作ろう。</p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="openAuthModal('signup')">無料で登録する</button>
+            <button class="btn btn-outline" onclick="openAuthModal('login')">ログイン</button>
+          </div>
+        </div>
+        <div id="posts-list"></div>
+        <div id="posts-loading" style="text-align:center;color:var(--muted);padding:2rem;display:none">読み込み中...</div>
+        <div id="posts-empty" style="text-align:center;color:var(--muted);padding:2rem;display:none">まだ投稿がありません。最初の投稿をしてみよう！</div>
+      </div>
+      <div class="community-sidebar">
+        <div class="sidebar-card" id="my-profile-card" style="display:none">
+          <div class="sidebar-title">⚔️ マイプロフィール</div>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+            <div class="avatar" id="my-avatar">🧑</div>
+            <div>
+              <div style="font-weight:700" id="my-display-name">—</div>
+              <div style="font-size:0.8rem;color:var(--muted)" id="my-username">@—</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+            <div style="background:var(--bg);border-radius:8px;padding:0.6rem;text-align:center">
+              <div style="font-weight:800;font-size:1.1rem" id="my-followers-count">0</div>
+              <div style="font-size:0.75rem;color:var(--muted)">フォロワー</div>
+            </div>
+            <div style="background:var(--bg);border-radius:8px;padding:0.6rem;text-align:center">
+              <div style="font-weight:800;font-size:1.1rem" id="my-following-count">0</div>
+              <div style="font-size:0.75rem;color:var(--muted)">フォロー中</div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" style="width:100%" onclick="openProfileModal()">✏️ プロフィール編集</button>
+          <button class="btn btn-outline btn-sm" style="width:100%;margin-top:0.5rem;color:var(--muted)" onclick="signOut()">ログアウト</button>
+        </div>
+        <div class="sidebar-card">
+          <div class="sidebar-title">🏆 アクティブメンバー</div>
+          <div id="members-list">
+            <div class="member-row">
+              <div class="online-dot"></div>
+              <div class="avatar avatar-sm">⚔️</div>
+              <div class="member-info"><div class="member-name">zuboraai</div><div class="member-stat">創設者 · スキル3個</div></div>
+              <button class="btn btn-follow btn-sm" disabled>運営</button>
+            </div>
+            <div class="member-row">
+              <div class="avatar avatar-sm">🤖</div>
+              <div class="member-info"><div class="member-name">ai_master_jp</div><div class="member-stat">フォロワー 24人</div></div>
+              <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
+            </div>
+            <div class="member-row">
+              <div class="avatar avatar-sm">💡</div>
+              <div class="member-info"><div class="member-name">prompt_wizard</div><div class="member-stat">フォロワー 18人</div></div>
+              <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
+            </div>
+            <div class="member-row">
+              <div class="avatar avatar-sm">🚀</div>
+              <div class="member-info"><div class="member-name">skill_hunter</div><div class="member-stat">フォロワー 11人</div></div>
+              <button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>
+            </div>
+          </div>
+          <div id="members-list-real" style="display:none"></div>
+        </div>
+        <div class="sidebar-card">
+          <div class="sidebar-title">🔥 トレンドタグ</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+            <span class="tag" style="cursor:pointer">#Claude活用</span>
+            <span class="tag" style="cursor:pointer">#X自動化</span>
+            <span class="tag" style="cursor:pointer">#プロンプト</span>
+            <span class="tag" style="cursor:pointer">#AI副業</span>
+            <span class="tag" style="cursor:pointer">#スキル開発</span>
+            <span class="tag" style="cursor:pointer">#自動投稿</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="faq" id="faq">
+  <div style="text-align:center;margin-bottom:3rem"><div class="section-title">❓ よくある質問</div></div>
+  <div class="faq-item"><div class="faq-q">スキルはどんな形式で届きますか？<span class="faq-arrow">▼</span></div><div class="faq-a">購入後すぐに <code>.skill</code> ファイルをダウンロードできます。ファイルをダブルクリックするだけでClaudeに装備できます。</div></div>
+  <div class="faq-item"><div class="faq-q">どのAIに対応していますか？<span class="faq-arrow">▼</span></div><div class="faq-a">主にClaude（Anthropic）に対応しています。一部スキルはChatGPT・Geminiでも使用可能です。</div></div>
+  <div class="faq-item"><div class="faq-q">返金はできますか？<span class="faq-arrow">▼</span></div><div class="faq-a">購入後7日以内であれば、スキルが説明通りに動作しない場合に限り全額返金対応します。</div></div>
+  <div class="faq-item"><div class="faq-q">スキルを出品するには何が必要ですか？<span class="faq-arrow">▼</span></div><div class="faq-a">SKILL.mdファイルを含むスキルディレクトリがあれば出品できます。メールでお問い合わせください。</div></div>
+  <div class="faq-item"><div class="faq-q">コミュニティ機能は無料で使えますか？<span class="faq-arrow">▼</span></div><div class="faq-a">はい、無料で会員登録するとコミュニティへの投稿、他メンバーのフォロー、タイムラインの閲覧が全て無料で使えます。</div></div>
+  <div class="faq-item"><div class="faq-q">先行登録すると何かメリットはありますか？<span class="faq-arrow">▼</span></div><div class="faq-a">先行登録された方には、正式オープン時に30%割引クーポンをプレゼントします。</div></div>
+</div>
+
+<div class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="section-title">📬 お問い合わせ</div>
+    <p>ご質問・出品のご相談・バグ報告など、お気軽にご連絡ください。<br>通常1〜2営業日以内にご返信します。</p>
+    <div class="contact-links">
+      <a href="mailto:skillforge.jp@gmail.com" class="btn btn-primary btn-lg">✉️ メールで問い合わせる</a>
+      <a href="https://x.com/zuboraai" target="_blank" class="btn btn-outline btn-lg">𝕏 X でDMする</a>
+    </div>
+  </div>
+</div>
+
 <footer>
-  <div class="footer-logo">⚔️ SkillForge</div>
-  <p>© 2026 SkillForge. AIエージェントのスキルマーケットプレイス</p>
-  <p style="margin-top:0.5rem">利用規約 · プライバシーポリシー · 出品ガイドライン · お問い合わせ</p>
+  <div class="footer-inner">
+    <div class="footer-logo">⚔️ SkillForge</div>
+    <div class="footer-links">
+      <a href="#market">マーケット</a><a href="#how">使い方</a><a href="#sell">出品する</a>
+      <a href="#community">コミュニティ</a><a href="#faq">FAQ</a>
+      <a href="mailto:skillforge.jp@gmail.com">利用規約</a>
+      <a href="mailto:skillforge.jp@gmail.com">プライバシーポリシー</a>
+    </div>
+    <div class="footer-copy">© 2026 SkillForge Beta</div>
+  </div>
 </footer>
+
+<!-- Skill Modal -->
+<div class="modal-overlay" id="skill-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="skill-modal-close">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div style="font-size:2rem;margin-bottom:0.5rem">⚔️</div>
+    <h3 style="margin-bottom:1.5rem">SkillForgeに参加する</h3>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-signup" onclick="switchAuthTab('signup')">新規登録</div>
+      <div class="auth-tab" id="tab-login" onclick="switchAuthTab('login')">ログイン</div>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+    <div id="signup-form">
+      <div class="form-group"><label>ユーザー名（英数字）</label><input type="text" id="signup-username" placeholder="例: ai_master" maxlength="20"></div>
+      <div class="form-group"><label>メールアドレス</label><input type="email" id="signup-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>パスワード（8文字以上）</label><input type="password" id="signup-password" placeholder="••••••••"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="signUp()">🚀 無料で登録する</button>
+      <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--muted)">登録することで利用規約とプライバシーポリシーに同意したものとみなされます</p>
+    </div>
+    <div id="login-form" style="display:none">
+      <div class="form-group"><label>メールアドレス</label><input type="email" id="login-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>パスワード</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="signIn()">ログイン →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeProfileModal()">✕</button>
+    <h3 style="margin-bottom:1.5rem">✏️ プロフィール編集</h3>
+    <div class="form-group"><label>アバター絵文字</label><div class="emoji-picker" id="emoji-picker"></div></div>
+    <div class="form-group"><label>表示名</label><input type="text" id="profile-display-name" placeholder="あなたの名前" maxlength="30"></div>
+    <div class="form-group"><label>自己紹介</label><input type="text" id="profile-bio" placeholder="AIスキル開発者 / Claude愛好家" maxlength="80"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="saveProfile()">保存する</button>
+  </div>
+</div>
+
+<!-- Setup Modal -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal" style="max-width:600px;max-height:85vh;overflow-y:auto">
+    <button class="modal-close" onclick="document.getElementById('setup-modal').classList.remove('open')">✕</button>
+    <h3 style="margin-bottom:0.5rem">⚙️ Supabase セットアップ（5分）</h3>
+    <p style="margin-bottom:1.5rem">無料でコミュニティ機能（ログイン・投稿・フォロー）を有効化する方法</p>
+    <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
+      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">① Supabaseアカウントを作る</div>
+      <ol style="color:var(--muted);line-height:2;padding-left:1.2rem;font-size:0.9rem">
+        <li><a href="https://supabase.com" target="_blank" style="color:#a78bfa">supabase.com</a> を開く</li>
+        <li>「Start your project」→ GitHubでサインイン</li>
+        <li>「New project」→ 名前を入力して作成（無料）</li>
+      </ol>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
+      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">② SQLをコピペしてテーブルを作る</div>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.8rem">Supabaseダッシュボード → SQL Editor → New query に下記をペーストして実行：</p>
+      <div style="background:#000;border-radius:8px;padding:1rem;font-size:0.72rem;color:#a78bfa;font-family:monospace;line-height:1.9;overflow-x:auto;white-space:pre">create table profiles (
+  id uuid references auth.users(id) primary key,
+  username text unique not null,
+  display_name text,
+  bio text,
+  avatar_emoji text default '🧑',
+  created_at timestamptz default now()
+);
+create table follows (
+  follower_id uuid references profiles(id) on delete cascade,
+  following_id uuid references profiles(id) on delete cascade,
+  created_at timestamptz default now(),
+  primary key (follower_id, following_id)
+);
+create table posts (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade,
+  content text not null,
+  likes integer default 0,
+  created_at timestamptz default now()
+);
+alter table profiles enable row level security;
+alter table follows enable row level security;
+alter table posts enable row level security;
+create policy "r" on profiles for select using (true);
+create policy "w" on profiles for insert with check (auth.uid()=id);
+create policy "u" on profiles for update using (auth.uid()=id);
+create policy "r" on follows for select using (true);
+create policy "w" on follows for all using (auth.uid()=follower_id);
+create policy "r" on posts for select using (true);
+create policy "w" on posts for insert with check (auth.uid()=user_id);
+create policy "d" on posts for delete using (auth.uid()=user_id);</div>
+    </div>
+    <div style="background:var(--bg);border-radius:12px;padding:1.2rem;margin-bottom:1rem">
+      <div style="font-weight:700;margin-bottom:0.8rem;color:#a78bfa">③ index.html の2箇所を書き換える</div>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.5rem">Settings → API から Project URL と anon key をコピーして：</p>
+      <div style="background:#000;border-radius:8px;padding:0.8rem;font-size:0.8rem;color:#fbbf24;font-family:monospace">const SUPABASE_URL = 'https://xxxxxx.supabase.co';<br>const SUPABASE_ANON_KEY = 'eyJhbGciO...';</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('setup-modal').classList.remove('open')">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-    });
+// ▼▼▼ ここを自分のSupabaseの値に書き換えてください ▼▼▼
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+const CONFIGURED = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+let sb = null, currentUser = null, currentProfile = null, selectedEmoji = '🧑';
+
+if (CONFIGURED) {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  document.getElementById('setup-banner').classList.add('hidden');
+  init();
+} else {
+  loadDemoPosts();
+  document.getElementById('stat-members').textContent = '4';
+  document.getElementById('stat-posts').textContent = '4';
+}
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { currentUser = session.user; await loadProfile(); }
+  updateUI();
+  loadPosts(); loadMembers(); loadStats();
+  sb.auth.onAuthStateChange(async (_, session) => {
+    currentUser = session?.user || null;
+    if (currentUser) await loadProfile(); else currentProfile = null;
+    updateUI(); loadMembers();
   });
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => { alert('🚧 現在ベータ版です。近日公開予定！'); });
+}
+
+function openAuthModal(tab = 'signup') { switchAuthTab(tab); document.getElementById('auth-modal').classList.add('open'); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); clearAuthMsg(); }
+function switchAuthTab(tab) {
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('login-form').style.display  = tab === 'login'  ? 'block' : 'none';
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
+  clearAuthMsg();
+}
+function clearAuthMsg() { document.getElementById('auth-error').style.display = 'none'; document.getElementById('auth-success').style.display = 'none'; }
+function showErr(m)  { const e = document.getElementById('auth-error');   e.textContent = m; e.style.display = 'block'; }
+function showOk(m)   { const e = document.getElementById('auth-success'); e.textContent = m; e.style.display = 'block'; }
+
+async function signUp() {
+  if (!CONFIGURED) { showErr('Supabaseを設定してください'); return; }
+  const u = document.getElementById('signup-username').value.trim();
+  const e = document.getElementById('signup-email').value.trim();
+  const p = document.getElementById('signup-password').value;
+  if (!u||!e||!p) { showErr('全ての項目を入力してください'); return; }
+  if (p.length < 8) { showErr('パスワードは8文字以上にしてください'); return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(u)) { showErr('ユーザー名は英数字とアンダースコアのみ'); return; }
+  clearAuthMsg();
+  const { data, error } = await sb.auth.signUp({ email: e, password: p });
+  if (error) { showErr(error.message); return; }
+  const { error: pe } = await sb.from('profiles').insert({ id: data.user.id, username: u.toLowerCase(), display_name: u, avatar_emoji: '🧑' });
+  if (pe && !pe.message.includes('duplicate')) { showErr('ユーザー名が既に使われています'); await sb.auth.signOut(); return; }
+  showOk('✅ 登録完了！メールを確認して認証してください。');
+  setTimeout(closeAuthModal, 2000);
+}
+
+async function signIn() {
+  if (!CONFIGURED) { showErr('Supabaseを設定してください'); return; }
+  const e = document.getElementById('login-email').value.trim();
+  const p = document.getElementById('login-password').value;
+  if (!e||!p) { showErr('メールとパスワードを入力してください'); return; }
+  clearAuthMsg();
+  const { error } = await sb.auth.signInWithPassword({ email: e, password: p });
+  if (error) { showErr('メールまたはパスワードが正しくありません'); return; }
+  showToast('✅ ログインしました！', 'success'); closeAuthModal();
+}
+
+async function signOut() {
+  if (!CONFIGURED) return;
+  await sb.auth.signOut(); currentUser = null; currentProfile = null; updateUI();
+  showToast('ログアウトしました', 'success');
+}
+
+async function loadProfile() {
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+  if (!data) return;
+  selectedEmoji = data.avatar_emoji || '🧑';
+  const [{ count: fw }, { count: fing }] = await Promise.all([
+    sb.from('follows').select('*',{count:'exact',head:true}).eq('following_id', currentUser.id),
+    sb.from('follows').select('*',{count:'exact',head:true}).eq('follower_id', currentUser.id)
+  ]);
+  document.getElementById('my-avatar').textContent = data.avatar_emoji || '🧑';
+  document.getElementById('my-display-name').textContent = data.display_name || data.username;
+  document.getElementById('my-username').textContent = '@' + data.username;
+  document.getElementById('my-followers-count').textContent = fw || 0;
+  document.getElementById('my-following-count').textContent = fing || 0;
+}
+
+function openProfileModal() {
+  if (!currentProfile) return;
+  document.getElementById('profile-display-name').value = currentProfile.display_name || '';
+  document.getElementById('profile-bio').value = currentProfile.bio || '';
+  buildEmojiPicker();
+  document.getElementById('profile-modal').classList.add('open');
+}
+function closeProfileModal() { document.getElementById('profile-modal').classList.remove('open'); }
+function buildEmojiPicker() {
+  const emojis = ['🧑','👩','🧙','🤖','👾','🦸','🐉','🦄','🔥','⚔️','🛡️','💎','🌟','🚀','💡','🎯','🧠','🎮','🦊','🐺','🏆','💪','🎨','🌈'];
+  document.getElementById('emoji-picker').innerHTML = emojis.map(em =>
+    `<div class="emoji-opt ${em===selectedEmoji?'selected':''}" onclick="selEmoji('${em}',this)">${em}</div>`).join('');
+}
+function selEmoji(e, el) { selectedEmoji = e; document.querySelectorAll('.emoji-opt').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); }
+async function saveProfile() {
+  if (!currentUser || !CONFIGURED) return;
+  const dn = document.getElementById('profile-display-name').value.trim();
+  const bi = document.getElementById('profile-bio').value.trim();
+  await sb.from('profiles').update({ display_name: dn, bio: bi, avatar_emoji: selectedEmoji }).eq('id', currentUser.id);
+  await loadProfile(); closeProfileModal(); showToast('✅ プロフィールを更新しました','success');
+}
+
+async function loadPosts() {
+  document.getElementById('posts-loading').style.display = 'block';
+  const { data } = await sb.from('posts').select('*, profiles(username,display_name,avatar_emoji)').order('created_at',{ascending:false}).limit(30);
+  document.getElementById('posts-loading').style.display = 'none';
+  if (!data || data.length===0) { document.getElementById('posts-empty').style.display='block'; return; }
+  document.getElementById('posts-empty').style.display = 'none';
+  document.getElementById('posts-list').innerHTML = data.map(p => {
+    const pr = p.profiles || {};
+    const own = currentUser && p.user_id === currentUser.id;
+    return `<div class="post-card" id="post-${p.id}">
+      <div class="post-header">
+        <div class="avatar">${pr.avatar_emoji||'🧑'}</div>
+        <div class="post-meta">
+          <div class="post-username">${pr.display_name||pr.username||'匿名'} <span style="color:var(--muted);font-weight:400">@${pr.username||''}</span></div>
+          <div class="post-time">${timeAgo(p.created_at)}</div>
+        </div>
+        ${own?`<button class="post-action" onclick="deletePost('${p.id}')">🗑️</button>`:''}
+      </div>
+      <div class="post-content">${esc(p.content).replace(/\n/g,'<br>').replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>')}</div>
+      <div class="post-actions">
+        <button class="post-action" onclick="likePost('${p.id}',this)">♡ <span>${p.likes||0}</span></button>
+        <button class="post-action" onclick="replyTo('${esc(pr.display_name||pr.username||'')}')">💬 返信</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function submitPost() {
+  if (!currentUser) { openAuthModal(); return; }
+  const t = document.getElementById('post-text').value.trim();
+  if (!t) return;
+  if (t.length > 280) { showToast('280文字以内で投稿してください','error'); return; }
+  await sb.from('posts').insert({ user_id: currentUser.id, content: t });
+  document.getElementById('post-text').value = '';
+  document.getElementById('char-count').textContent = '0 / 280';
+  showToast('✅ 投稿しました！','success'); await loadPosts();
+}
+
+async function deletePost(id) {
+  if (!currentUser || !confirm('削除しますか？')) return;
+  await sb.from('posts').delete().eq('id',id).eq('user_id',currentUser.id);
+  document.getElementById('post-'+id)?.remove(); showToast('削除しました','success');
+}
+
+async function likePost(id, btn) {
+  const sp = btn.querySelector('span');
+  const n  = parseInt(sp.textContent)||0;
+  sp.textContent = n+1; btn.classList.add('liked');
+  await sb.from('posts').update({ likes: n+1 }).eq('id', id);
+}
+
+function replyTo(name) {
+  if (!currentUser) { openAuthModal(); return; }
+  const ta = document.getElementById('post-text');
+  ta.value = `@${name} `; ta.focus();
+  ta.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+async function loadMembers() {
+  if (!CONFIGURED) return;
+  const { data } = await sb.from('profiles').select('*').order('created_at').limit(8);
+  if (!data || data.length===0) return;
+  const rows = await Promise.all(data.map(async m => {
+    const { count } = await sb.from('follows').select('*',{count:'exact',head:true}).eq('following_id', m.id);
+    let btn = '';
+    if (currentUser && currentUser.id !== m.id) {
+      const { data: isF } = await sb.from('follows').select('follower_id').eq('follower_id',currentUser.id).eq('following_id',m.id).single();
+      btn = `<button class="btn btn-sm ${isF?'btn-following':'btn-follow'}" onclick="toggleFollow('${m.id}',this)">${isF?'フォロー中':'フォロー'}</button>`;
+    } else if (!currentUser) {
+      btn = `<button class="btn btn-follow btn-sm" onclick="openAuthModal()">フォロー</button>`;
+    }
+    return `<div class="member-row">
+      <div class="avatar avatar-sm">${m.avatar_emoji||'🧑'}</div>
+      <div class="member-info"><div class="member-name">${m.display_name||m.username}</div><div class="member-stat">フォロワー ${count||0}人</div></div>
+      ${btn}
+    </div>`;
+  }));
+  document.getElementById('members-list-real').innerHTML = rows.join('');
+  document.getElementById('members-list').style.display = 'none';
+  document.getElementById('members-list-real').style.display = 'block';
+}
+
+async function toggleFollow(targetId, btn) {
+  if (!currentUser) { openAuthModal(); return; }
+  const isFing = btn.classList.contains('btn-following');
+  if (isFing) {
+    await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',targetId);
+    btn.textContent='フォロー'; btn.className='btn btn-follow btn-sm';
+  } else {
+    await sb.from('follows').insert({ follower_id:currentUser.id, following_id:targetId });
+    btn.textContent='フォロー中'; btn.className='btn btn-following btn-sm';
+  }
+  await loadProfile();
+}
+
+async function loadStats() {
+  const [{ count: m }, { count: p }] = await Promise.all([
+    sb.from('profiles').select('*',{count:'exact',head:true}),
+    sb.from('posts').select('*',{count:'exact',head:true})
+  ]);
+  document.getElementById('stat-members').textContent = m||0;
+  document.getElementById('stat-posts').textContent   = p||0;
+}
+
+function updateUI() {
+  const li = !!currentUser;
+  document.getElementById('community-login-gate').style.display = li ? 'none' : 'block';
+  document.getElementById('post-composer').style.display         = li ? 'block' : 'none';
+  document.getElementById('my-profile-card').style.display       = li ? 'block' : 'none';
+  const area = document.getElementById('nav-auth-area');
+  if (li && currentProfile) {
+    area.innerHTML = `<div class="nav-profile" onclick="openProfileModal()"><span>${currentProfile.avatar_emoji||'🧑'}</span><span>@${currentProfile.username}</span></div><button class="btn btn-outline btn-sm" onclick="signOut()">ログアウト</button>`;
+  } else {
+    area.innerHTML = `<button class="btn btn-primary" onclick="openAuthModal()">ログイン / 登録</button>`;
+  }
+}
+
+function loadDemoPosts() {
+  const d = [
+    {a:'⚔️',n:'zuboraai',u:'zuboraai',t:'1時間前',c:'X自動投稿スキルをテスト中！Claudeが自動でAIニュースを生成してくれてる🔥 #AI副業 #Claude活用',l:12},
+    {a:'🤖',n:'ai_master_jp',u:'ai_master_jp',t:'3時間前',c:'Claudeのスキルシステムが本当に便利。SKILL.mdに書くだけで新しい能力が追加できるのは革命的 #スキル開発',l:8},
+    {a:'💡',n:'prompt_wizard',u:'prompt_wizard',t:'昨日',c:'営業メール生成スキルが一番効果あった。返信率が明らかに上がってる #プロンプト #AI副業',l:23},
+    {a:'🚀',n:'skill_hunter',u:'skill_hunter',t:'2日前',c:'SkillForgeに参加しました！AIスキルで副業始めます💪 #SkillForge #Claude活用',l:5},
+  ];
+  document.getElementById('posts-list').innerHTML = d.map(p=>`
+    <div class="post-card">
+      <div class="post-header">
+        <div class="avatar">${p.a}</div>
+        <div class="post-meta"><div class="post-username">${p.n} <span style="color:var(--muted);font-weight:400">@${p.u}</span></div><div class="post-time">${p.t}</div></div>
+      </div>
+      <div class="post-content">${p.c.replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>')}</div>
+      <div class="post-actions">
+        <button class="post-action" onclick="openAuthModal()">♡ <span>${p.l}</span></button>
+        <button class="post-action" onclick="openAuthModal()">💬 返信</button>
+      </div>
+    </div>`).join('');
+}
+
+function timeAgo(d) {
+  const m = Math.floor((Date.now()-new Date(d))/60000);
+  if(m<1) return 'たった今'; if(m<60) return m+'分前';
+  const h=Math.floor(m/60); if(h<24) return h+'時間前';
+  return Math.floor(h/24)+'日前';
+}
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+const skills = {
+  skill1:{icon:'🚀',title:'X自動投稿スキル',rarity:'Epic',price:'¥3,980',desc:'AIがAIニュースを自動生成してXに1日3回投稿。PCがオフでもGitHub Actionsで24時間稼働。',features:['Claude APIで毎回ユニークなツイート生成','GitHub Actionsで完全自動化（PC不要）','アフィリエイトリンク自動挿入機能','6カテゴリのコンテンツをローテーション','セットアップガイド付き（初心者OK）']},
+  skill2:{icon:'📝',title:'法律文書レビュースキル',rarity:'Legendary',price:'¥8,800',desc:'契約書・利用規約・NDAをClaudeが自動レビュー。リスク箇所をハイライトして解説。',features:['契約書・NDA・利用規約に対応','リスク箇所を赤・黄・緑で分類','修正案の自動提案','Word/PDF読み込み可能','法律の専門知識不要']},
+  skill3:{icon:'📊',title:'Excel自動集計スキル',rarity:'Rare',price:'¥2,480',desc:'散らかったExcelデータをAIが整理・集計・グラフ化。月次レポートが30秒で完成。',features:['CSVやExcelを読み込んで自動集計','グラフ・チャートを自動生成','月次・週次レポートのテンプレート付き','異常値・欠損データを自動検出','Python不要']},
+  skill4:{icon:'🎯',title:'営業メール自動生成スキル',rarity:'Epic',price:'¥4,980',desc:'会社名・担当者名を入れるだけでパーソナライズされた営業メールを自動生成。',features:['会社情報を入力するだけで自動生成','業界・役職に合わせたトーン調整','件名・本文・署名まで一括生成','複数パターン生成','フォローアップメールも自動作成']},
+  skill5:{icon:'🎥',title:'YouTube台本生成スキル',rarity:'Rare',price:'¥1,980',desc:'タイトルとテーマを入力するだけで、フック・本編・CTAまで完璧な台本を自動生成。',features:['フック・本編・CTA構成を自動設計','視聴維持率を上げる構成テンプレート','SEO最適化したタイトル・概要文も生成','Shorts用ショートスクリプトにも対応','字幕テキスト形式でも出力可能']},
+  skill6:{icon:'🛍️',title:'EC商品説明文スキル',rarity:'Common',price:'¥980',desc:'商品名・特徴を入力するだけでSEO最適化された商品説明文を自動生成。Amazon・楽天対応。',features:['Amazon・楽天・Yahoo!ショッピング対応','SEOキーワードを自動で含める','箇条書き・文章の両形式で出力','1商品30秒で量産','ターゲット層に合わせたトーン調整']}
+};
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const f = tab.dataset.filter;
+    document.querySelectorAll('.card[data-category]').forEach(c=>c.classList.toggle('hidden', f!=='all' && c.dataset.category!==f));
   });
+});
+
+document.querySelectorAll('.card[data-modal]').forEach(card => {
+  card.addEventListener('click', () => {
+    const s = skills[card.dataset.modal]; if(!s) return;
+    document.getElementById('modal-content').innerHTML = `
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">${s.icon}</div>
+      <h3>${s.title}</h3>
+      <div style="margin:0.4rem 0 0.8rem"><span class="rarity rarity-${s.rarity.toLowerCase()}">${s.rarity}</span></div>
+      <div class="modal-price">${s.price}</div>
+      <p>${s.desc}</p>
+      <ul class="modal-features">${s.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="modal-cta">
+        <div style="font-size:0.85rem;color:var(--muted);text-align:center;margin-bottom:0.5rem">🔔 正式オープン時に通知を受け取る</div>
+        <div class="waitlist-form">
+          <input type="email" placeholder="メールアドレスを入力" id="waitlist-email">
+          <button class="btn btn-primary" onclick="registerWaitlist()">登録</button>
+        </div>
+        <div style="font-size:0.8rem;color:var(--muted);text-align:center">先行登録で30%OFFクーポンプレゼント</div>
+      </div>`;
+    document.getElementById('skill-modal-overlay').classList.add('open');
+  });
+});
+document.getElementById('skill-modal-close').addEventListener('click',()=>document.getElementById('skill-modal-overlay').classList.remove('open'));
+document.getElementById('skill-modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('skill-modal-overlay'))document.getElementById('skill-modal-overlay').classList.remove('open');});
+
+function registerWaitlist() {
+  const e = document.getElementById('waitlist-email').value;
+  if (!e||!e.includes('@')) { alert('正しいメールアドレスを入力してください'); return; }
+  document.getElementById('modal-content').innerHTML = `<div style="text-align:center;padding:2rem 0"><div style="font-size:3rem;margin-bottom:1rem">🎉</div><h3 style="margin-bottom:1rem">登録完了！</h3><p style="color:var(--muted)">正式オープン時に<br><strong style="color:var(--text)">${e}</strong><br>へ30%OFFクーポンをお送りします。</p></div>`;
+}
+
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const a=q.nextElementSibling, ar=q.querySelector('.faq-arrow'), open=a.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(x=>x.classList.remove('open'));
+    document.querySelectorAll('.faq-arrow').forEach(x=>x.classList.remove('open'));
+    if(!open){a.classList.add('open');ar.classList.add('open');}
+  });
+});
+
+const pt = document.getElementById('post-text');
+if(pt){
+  pt.addEventListener('input',()=>document.getElementById('char-count').textContent=`${pt.value.length} / 280`);
+  pt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitPost();}});
+}
 </script>
 </body>
 </html>
