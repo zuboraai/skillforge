@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillForge – AIエージェントに装備を</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131f;
+      --card: #1a1a2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --gold: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2d2d4e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); background: rgba(10,10,15,0.9); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+    .logo { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo span { font-size: 0.9rem; -webkit-text-fill-color: var(--muted); font-weight: 400; margin-left: 0.3rem; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { padding: 0.6rem 1.4rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .hero { text-align: center; padding: 6rem 2rem 4rem; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.85rem; color: #a78bfa; margin-bottom: 2rem; }
+    .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
+    .hero h1 .highlight { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 3rem; line-height: 1.7; }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-lg { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 10px; }
+    .stats { display: flex; justify-content: center; gap: 4rem; padding: 3rem 2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-label { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+    .section { padding: 4rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .section-sub { color: var(--muted); margin-bottom: 2rem; }
+    .tabs { display: flex; gap: 0.8rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .tab { padding: 0.5rem 1.2rem; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.3s; }
+    .card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(124,58,237,0.2); }
+    .card:hover::before { opacity: 1; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .rarity { padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .rarity-common { background: rgba(100,116,139,0.2); color: #94a3b8; }
+    .rarity-rare { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .rarity-epic { background: rgba(124,58,237,0.2); color: #a78bfa; }
+    .rarity-legendary { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .card-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.2rem; }
+    .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .tag { padding: 0.2rem 0.6rem; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); border-radius: 6px; font-size: 0.75rem; color: #a78bfa; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .price { font-size: 1.3rem; font-weight: 900; color: var(--gold); }
+    .rating { display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--muted); }
+    .featured { background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1)); border: 1px solid rgba(124,58,237,0.3); border-radius: 20px; padding: 3rem; margin-bottom: 3rem; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
+    .featured-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--gold); color: #000; padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+    .featured h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.8rem; }
+    .featured p { color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .featured-price { text-align: right; }
+    .featured-price .big-price { font-size: 2.5rem; font-weight: 900; color: var(--gold); }
+    .featured-price .original { color: var(--muted); text-decoration: line-through; font-size: 1rem; }
+    .how { background: var(--surface); padding: 5rem 2rem; }
+    .how-inner { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .step { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; }
+    .step-num { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; margin: 0 auto 1rem; }
+    .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+    .seller-cta { background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%); border-radius: 24px; padding: 4rem 3rem; text-align: center; max-width: 900px; margin: 4rem auto; }
+    .seller-cta h2 { font-size: 2.2rem; font-weight: 900; margin-bottom: 1rem; }
+    .seller-cta p { color: rgba(255,255,255,0.8); margin-bottom: 2rem; font-size: 1.1rem; }
+    .seller-stats { display: flex; justify-content: center; gap: 3rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .seller-stat .num { font-size: 1.8rem; font-weight: 900; }
+    .seller-stat .label { font-size: 0.85rem; opacity: 0.8; }
+    footer { border-top: 1px solid var(--border); padding: 3rem 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    footer .footer-logo { font-size: 1.3rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
+    @media (max-width: 600px) { .featured { grid-template-columns: 1fr; } .featured-price { text-align: left; } nav .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">⚔️ SkillForge <span>β</span></div>
+  <div class="nav-links">
+    <a href="#">マーケット</a><a href="#">出品する</a><a href="#">ランキング</a><a href="#">使い方</a>
+  </div>
+  <div style="display:flex;gap:0.8rem">
+    <button class="btn btn-outline">ログイン</button>
+    <button class="btn btn-primary">無料で始める</button>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-badge">⚡ 日本初 AIスキルマーケットプレイス</div>
+  <h1>AIエージェントに<br><span class="highlight">最強の装備</span>を与えよ</h1>
+  <p>RPGのスキルショップのように、AIに新しい能力を追加購入。<br>開発者は作ったスキルを売って収益化できます。</p>
+  <div class="hero-cta">
+    <button class="btn btn-primary btn-lg">🛒 スキルを探す</button>
+    <button class="btn btn-outline btn-lg">💰 出品して稼ぐ</button>
+  </div>
+</section>
+<div class="stats">
+  <div class="stat"><div class="stat-num">247</div><div class="stat-label">販売中のスキル</div></div>
+  <div class="stat"><div class="stat-num">1,834</div><div class="stat-label">登録ユーザー</div></div>
+  <div class="stat"><div class="stat-num">¥4.2M</div><div class="stat-label">出品者総収益</div></div>
+  <div class="stat"><div class="stat-num">4.8 ⭐</div><div class="stat-label">平均評価</div></div>
+</div>
+<div class="section">
+  <div class="featured">
+    <div>
+      <div class="featured-badge">🔥 今週のピックアップ</div>
+      <h2>副業AIシステム完全パック</h2>
+      <p>X自動投稿 × アフィリエイト自動化 × コンテンツ生成を全部まとめたスキルバンドル。PCがオフでも24時間稼働し続けるAI副業システム。</p>
+      <div class="card-tags">
+        <span class="tag">X自動投稿</span><span class="tag">アフィリエイト</span><span class="tag">GitHub Actions</span><span class="tag">Claude API</span>
+      </div>
+      <button class="btn btn-primary">今すぐ入手 →</button>
+    </div>
+    <div class="featured-price">
+      <div class="original">¥19,800</div>
+      <div class="big-price">¥9,800</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem">期間限定 50% OFF</div>
+      <div style="margin-top:1rem;padding:0.8rem;background:rgba(0,0,0,0.3);border-radius:10px;font-size:0.85rem;color:var(--muted)">⭐ 4.9 (128件のレビュー)<br>📦 バンドル3スキル含む</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active">🔥 人気</button>
+    <button class="tab">🆕 新着</button>
+    <button class="tab">🤖 自動化</button>
+    <button class="tab">✍️ ライティング</button>
+    <button class="tab">📊 ビジネス</button>
+    <button class="tab">🎮 エンタメ</button>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(124,58,237,0.2)">🚀</div><span class="rarity rarity-epic">Epic</span></div>
+      <div class="card-title">X自動投稿スキル</div>
+      <div class="card-desc">AIがAIニュースを自動生成してXに1日3回投稿。PCがオフでもGitHub Actionsで24時間稼働。</div>
+      <div class="card-tags"><span class="tag">自動化</span><span class="tag">Claude API</span><span class="tag">収益化</span></div>
+      <div class="card-footer"><div class="price">¥3,980</div><div class="rating">⭐ 4.8 (42)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(245,158,11,0.2)">📝</div><span class="rarity rarity-legendary">Legendary</span></div>
+      <div class="card-title">法律文書レビュースキル</div>
+      <div class="card-desc">契約書・利用規約・NDAをClaudeが自動レビュー。リスク箇所をハイライトしてわかりやすく解説。</div>
+      <div class="card-tags"><span class="tag">法律</span><span class="tag">ビジネス</span><span class="tag">Word対応</span></div>
+      <div class="card-footer"><div class="price">¥8,800</div><div class="rating">⭐ 4.9 (87)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(6,182,212,0.2)">📊</div><span class="rarity rarity-rare">Rare</span></div>
+      <div class="card-title">Excel自動集計スキル</div>
+      <div class="card-desc">散らかったExcelデータをAIが整理・集計・グラフ化。月次レポートが30秒で完成。</div>
+      <div class="card-tags"><span class="tag">Excel</span><span class="tag">データ分析</span><span class="tag">自動化</span></div>
+      <div class="card-footer"><div class="price">¥2,480</div><div class="rating">⭐ 4.7 (53)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(239,68,68,0.2)">🎯</div><span class="rarity rarity-epic">Epic</span></div>
+      <div class="card-title">営業メール自動生成スキル</div>
+      <div class="card-desc">会社名・担当者名を入れるだけでパーソナライズされた営業メールを自動生成。返信率2倍を実現。</div>
+      <div class="card-tags"><span class="tag">営業</span><span class="tag">メール</span><span class="tag">BtoB</span></div>
+      <div class="card-footer"><div class="price">¥4,980</div><div class="rating">⭐ 4.6 (31)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(16,185,129,0.2)">🎥</div><span class="rarity rarity-rare">Rare</span></div>
+      <div class="card-title">YouTube台本生成スキル</div>
+      <div class="card-desc">タイトルとテーマを入力するだけで、フック・本編・CTAまで完璧な台本を自動生成。</div>
+      <div class="card-tags"><span class="tag">YouTube</span><span class="tag">コンテンツ</span><span class="tag">SNS</span></div>
+      <div class="card-footer"><div class="price">¥1,980</div><div class="rating">⭐ 4.8 (96)</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-icon" style="background:rgba(236,72,153,0.2)">🛍️</div><span class="rarity rarity-common">Common</span></div>
+      <div class="card-title">ECサイト商品説明文スキル</div>
+      <div class="card-desc">商品名・特徴を入力するだけでSEO最適化された商品説明文を自動生成。Amazon・楽天対応。</div>
+      <div class="card-tags"><span class="tag">EC</span><span class="tag">SEO</span><span class="tag">コピー</span></div>
+      <div class="card-footer"><div class="price">¥980</div><div class="rating">⭐ 4.5 (144)</div></div>
+    </div>
+  </div>
+</div>
+<div class="how">
+  <div class="how-inner">
+    <div class="section-title">使い方は3ステップ</div>
+    <div class="section-sub">RPGゲームのアイテム装備と同じくらい簡単です</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>スキルを選ぶ</h3><p>用途に合ったスキルをマーケットから探して購入する。レビューとデモで事前確認できます。</p></div>
+      <div class="step"><div class="step-num">2</div><h3>AIに装備する</h3><p>購入したスキルファイルをClaudeのスキルフォルダに配置。すぐに新しい能力が使えます。</p></div>
+      <div class="step"><div class="step-num">3</div><h3>成果を出す</h3><p>自動化・効率化・収益化。スキルを組み合わせてAIを最強の相棒にアップグレード。</p></div>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <div class="seller-cta">
+    <h2>あなたのスキルを売りませんか？</h2>
+    <p>作ったAIスキルをSkillForgeで販売して収益化。<br>登録無料・手数料25%のみ。</p>
+    <div class="seller-stats">
+      <div class="seller-stat"><div class="num">75%</div><div class="label">出品者の収益率</div></div>
+      <div class="seller-stat"><div class="num">¥0</div><div class="label">初期費用</div></div>
+      <div class="seller-stat"><div class="num">1,834人</div><div class="label">潜在的な購入者</div></div>
+    </div>
+    <button class="btn" style="background:white;color:var(--accent);font-size:1.1rem;padding:0.9rem 2.5rem;border-radius:10px;font-weight:700">今すぐ出品を始める →</button>
+  </div>
+</div>
+<footer>
+  <div class="footer-logo">⚔️ SkillForge</div>
+  <p>© 2026 SkillForge. AIエージェントのスキルマーケットプレイス</p>
+  <p style="margin-top:0.5rem">利用規約 · プライバシーポリシー · 出品ガイドライン · お問い合わせ</p>
+</footer>
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => { alert('🚧 現在ベータ版です。近日公開予定！'); });
+  });
+</script>
+</body>
+</html>
